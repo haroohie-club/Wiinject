@@ -20,7 +20,7 @@ namespace Wiinject
             {
                 { "f|folder=", f => folder = f },
                 { "i|injection-address=", i => injectionAddress = uint.Parse(i, System.Globalization.NumberStyles.HexNumber) },
-                { "e|end-injection=", l => maxInjectionLength = uint.Parse(l, System.Globalization.NumberStyles.HexNumber) - injectionAddress },
+                { "e|end-injection=", e => maxInjectionLength = uint.Parse(e, System.Globalization.NumberStyles.HexNumber) - injectionAddress },
                 { "o|output-folder=", o => outputFolder = o },
                 { "n|patch-name=", n => patchName = n },
                 { "p|input-patch=", p => inputPatch = p },
