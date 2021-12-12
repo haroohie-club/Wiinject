@@ -12,15 +12,19 @@ namespace Wiinject
     {
         static void Main(string[] args)
         {
-            string folder = "";
-            uint injectionAddress = 0;
-            uint maxInjectionLength = 0;
+            string folder = "", outputFolder = ".", patchName = "patch", inputPatch = "";
+            uint injectionAddress = 0, maxInjectionLength = 0;
+            bool consoleOutput = false;
 
             OptionSet options = new()
             {
                 { "f|folder=", f => folder = f },
                 { "i|injection-address=", i => injectionAddress = uint.Parse(i, System.Globalization.NumberStyles.HexNumber) },
                 { "e|end-injection=", l => maxInjectionLength = uint.Parse(l, System.Globalization.NumberStyles.HexNumber) - injectionAddress },
+                { "o|output-folder=", o => outputFolder = o },
+                { "n|patch-name=", n => patchName = n },
+                { "p|input-patch=", p => inputPatch = p },
+                { "console-output", c => consoleOutput = true },
             };
 
             options.Parse(args);
@@ -30,7 +34,15 @@ namespace Wiinject
                 return;
             }
 
-            Riivolution riivolution = new();
+            Riivolution riivolution;
+            if (!string.IsNullOrEmpty(inputPatch))
+            {
+                riivolution = new(inputPatch);
+            }
+            else
+            {
+                riivolution = new();
+            }
 
             string[] asmFiles = Directory.GetFiles(folder, "*.s", SearchOption.AllDirectories);
             Regex hookRegex = new(@"hook_(?<address>[A-F\d]{8}):");
@@ -63,10 +75,21 @@ namespace Wiinject
                 return;
             }
 
-            File.WriteAllBytes("patch.bin", routineMashup.ToArray());
-            riivolution.AddMemoryFilesPatch(injectionAddress, "/Heiretsu/patch.bin");
+            Directory.CreateDirectory(Path.Combine(outputFolder, patchName));
+            Directory.CreateDirectory(Path.Combine(outputFolder, "Riivolution"));
+            File.WriteAllBytes(Path.Combine(outputFolder, patchName, "patch.bin"), routineMashup.ToArray());
+            riivolution.AddMemoryFilesPatch(injectionAddress, $"/{patchName}/patch.bin");
 
-            riivolution.PatchXml.Save("R44J8P.xml");
+            if (consoleOutput)
+            {
+                Console.WriteLine(riivolution.PatchXml.OuterXml);
+            }
+            else
+            {
+                string outputPath = Path.Combine(outputFolder, "Riivolution", $"{patchName}.xml");
+                riivolution.PatchXml.Save(outputPath);
+                Console.WriteLine($"Wrote to {outputPath}");
+            }
         }
     }
 }

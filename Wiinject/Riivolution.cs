@@ -9,28 +9,19 @@ namespace Wiinject
 {
     public class Riivolution
     {
-        public XmlDocument PatchXml { get; set; }
+		public XmlDocument PatchXml { get; set; } = new();
 
-        public Riivolution()
+		public Riivolution()
         {
-            PatchXml = new();
-			PatchXml.LoadXml(@"<wiidisc version=""1"">
-	<id game=""R44J8P"" />
-	<options>
-		<section name=""Heiretsu Replacement"">
-			<option name=""Heiretsu Replacement"">
-				<choice name=""Enabled"">
-					<patch id=""HeiretsuFolder"" />
-				</choice>
-			</option>
-		</section>
-	</options>
-	<patch id=""HeiretsuFolder"">
-		<folder external=""/Heiretsu/files"" recursive=""true"" />
-		<folder external=""/Heiretsu/files"" disc=""/"" />
+			XmlElement root = PatchXml.CreateElement("wiidisc");
+			PatchXml.AppendChild(root);
+			XmlElement patch = PatchXml.CreateElement("patch");
+			PatchXml["wiidisc"].AppendChild(patch);
+        }
 
-	</patch>
-</wiidisc>");
+        public Riivolution(string patch)
+        {
+			PatchXml.Load(patch);
         }
 
 		public void AddMemoryPatch(uint offset, byte[] value)
