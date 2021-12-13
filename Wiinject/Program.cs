@@ -45,7 +45,7 @@ namespace Wiinject
             }
 
             string[] asmFiles = Directory.GetFiles(folder, "*.s", SearchOption.AllDirectories);
-            Regex hookRegex = new(@"hook_(?<address>[A-F\d]{8}):");
+            Regex hookRegex = new(@"(?<mode>repl|hook)_(?<address>[A-F\d]{8}):");
             List<Routine> routines = new();
             List<byte> routineMashup = new();
 
@@ -54,15 +54,15 @@ namespace Wiinject
                 string asmFileText = File.ReadAllText(asmFile);
                 string[] assemblyRoutines = hookRegex.Split(asmFileText);
 
-                for (int i = 1; i < assemblyRoutines.Length; i += 2)
+                for (int i = 1; i < assemblyRoutines.Length; i += 3)
                 {
-                    routines.Add(new Routine(uint.Parse(assemblyRoutines[i], System.Globalization.NumberStyles.HexNumber), assemblyRoutines[i + 1]));
+                    routines.Add(new Routine(assemblyRoutines[i], uint.Parse(assemblyRoutines[i + 1], System.Globalization.NumberStyles.HexNumber), assemblyRoutines[i + 2]));
                 }
             }
 
             foreach (Routine routine in routines)
             {
-                if (routine.Data.Length == 4) // exception for handling single instruction routines
+                if (routine.RoutineMode == Routine.Mode.REPL)
                 {
                     riivolution.AddMemoryPatch(routine.InsertionPoint, routine.Data);
                 }
