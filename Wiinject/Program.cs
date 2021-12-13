@@ -62,11 +62,17 @@ namespace Wiinject
 
             foreach (Routine routine in routines)
             {
-                uint branchLocation = injectionAddress + (uint)routineMashup.Count;
-                routine.SetBranchInstruction(branchLocation);
-                routineMashup.AddRange(routine.Data);
-
-                riivolution.AddMemoryPatch(routine.InsertionPoint, routine.BranchInstruction);
+                if (routine.Data.Length == 4) // exception for handling single instruction routines
+                {
+                    riivolution.AddMemoryPatch(routine.InsertionPoint, routine.Data);
+                }
+                else
+                {
+                    uint branchLocation = injectionAddress + (uint)routineMashup.Count;
+                    routine.SetBranchInstruction(branchLocation);
+                    routineMashup.AddRange(routine.Data);
+                    riivolution.AddMemoryPatch(routine.InsertionPoint, routine.BranchInstruction);
+                }
             }
 
             if (routineMashup.Count > maxInjectionLength)
