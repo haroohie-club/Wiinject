@@ -31,14 +31,20 @@ hook_80017250:
 hook_80017254:
     mr 3,26
     blr
+
+repl_80017260:
+    mr 5,25
+    li 6,7
 ```
 
-The hooks indicate which instructions to replace with a branch instruction to the function provided.
+The `hook`s indicate which instructions to replace with a branch instruction to the function provided. The `repl` indicates a location to start overwriting
+instructions directly with the instructions provided.
 
 ## Limitations
 
 * Wiinject does not currently support the `bl` command within assembly functions, e.g. `bl =hook_blah` will not currently work.
 * Wiinject currently only supports base patches with a single `<patch>` element.
+* The [paired single operators](https://wiibrew.org/wiki/Paired_single) are not available
 
 ## Source & Building
 
