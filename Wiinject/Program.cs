@@ -14,7 +14,7 @@ namespace Wiinject
         {
             string folder = "", outputFolder = ".", patchName = "patch", inputPatch = "", devkitProPath = "C:\\devkitPro";
             uint[] injectionAddresses = new uint[0], injectionEndAddresses = new uint[0];
-            bool consoleOutput = false;
+            bool consoleOutput = false, emitC = false;
 
             OptionSet options = new()
             {
@@ -30,6 +30,7 @@ namespace Wiinject
                 { "p|input-patch=", "The base Riivolution patch that will be modified by Wiinject to contain the memory patches. A blank base template will be created if this is not provided.", p => inputPatch = p },
                 { "d|devkitpro-path=", "The path to a devkitPro installation containing devkitPPC.", d => devkitProPath = d },
                 { "console-output", "Rather than producing an ASM patch, simply output the XML to the console. This will still save the ASM bin, however.", c => consoleOutput = true },
+                { "emit-c", "Emits assembled C functions to the console so you can modify your assembly calls to those functions to work with the registries used by the compiler", c => emitC = true },
             };
 
             options.Parse(args);
@@ -127,6 +128,13 @@ namespace Wiinject
                         if (!injected)
                         {
                             Console.WriteLine($"Error: could not inject function {function.Name}; function longer than any available injection site.");
+                            return;
+                        }
+                        if (emitC)
+                        {
+                            Console.WriteLine($"== {function.Name} ==\n");
+                            Console.WriteLine(string.Join('\n', function.Instructions.Select(i => i.Text)));
+                            Console.WriteLine("\n");
                         }
                     }
                 }

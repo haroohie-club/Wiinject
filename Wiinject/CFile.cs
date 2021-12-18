@@ -164,7 +164,7 @@ namespace Wiinject
         {
             if (IsBranchLink)
             {
-                Text = $"bl {(long)relativeBranch:X16}";
+                Text = $"bl 0x{(long)relativeBranch:X16}";
                 Assemble();
             }
         }

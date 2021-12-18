@@ -12,6 +12,7 @@ namespace Wiinject
         public static byte[] Assemble(string asm)
         {
             Engine keystone = new(Architecture.PPC, Mode.X64);
+            keystone.ThrowOnError = true;
             EncodedData data = keystone.Assemble(asm, 0);
 
             List<byte> bigEndianData = new();
@@ -58,22 +59,17 @@ namespace Wiinject
             }
 
             StringBuilder sb = new();
-            uint instructionLocation = 0;
             foreach (string line in Assembly.Replace("\r\n", "\n").Split('\n'))
             {
                 Match match = BlRegex.Match(line);
                 if (match.Success)
                 {
-                    int relativeBranch = (int)(functions.First(f => f.Name == match.Groups["function"].Value).EntryPoint - (injectionPoint + instructionLocation));
+                    int relativeBranch = (int)(functions.First(f => f.Name == match.Groups["function"].Value).EntryPoint - injectionPoint);
                     sb.AppendLine(BlRegex.Replace(line, $"bl 0x{(long)relativeBranch:X16}"));
                 }
                 else
                 {
                     sb.AppendLine(line);
-                }
-                if (!string.IsNullOrWhiteSpace(line) && !line.Contains(':'))
-                {
-                    instructionLocation += 4;
                 }
             }
 
