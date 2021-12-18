@@ -9,9 +9,10 @@ Wiinject relies on the [Keystone Engine](https://www.keystone-engine.org/) to as
 
 ### CLI Options
 * `-f|--folder` &ndash; The folder where your `.s` ASM files live
-* `-i|--injection-address` &ndash; The address where the assembly code will be injected. Find a portion of the ROM that is safe to overwrite and put its address here
-* `-e|--end-injection` &ndash; The address where the above injection section ends. If the code goes past this point, an error will be thrown.
-* `-o|--output-folder` &ndash; The folder to output the Riivolution patch.xml & assembled ASM bin file.
+* `-i|--injection-addresses` &ndash; The addresses to inject function code at, comma delimited. The code at these addresses should be safe to overwrite.
+* `-e|--injection-ends` &ndash; The addresses at which the above injection sites end (are no longer safe to overwrite), comma delimited.
+                                If the code is unable to fit in any of these injection sites, an error will be thrown.
+* `-o|--output-folder` &ndash; The folder to output the Riivolution patch.xml & assembled ASM bin file to.
 * `-n|--patch-name` &ndash; The name of the patch to output. The patch will be output to `{output_folder}/Riivolution/{patch_name}.xml`
                             and the ASM bin will be output to `{output_folder}/{patch_name}/patch.bin`.
 * `-p|--input-patch` &ndash; The base Riivolution patch that will be modified by Wiinject to contain the memory patches. A blank base template will be created if this is not provided.

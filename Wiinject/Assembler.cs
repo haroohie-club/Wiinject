@@ -42,7 +42,7 @@ namespace Wiinject
         public void SetBranchInstruction(uint branchTo)
         {
             uint relativeBranch = branchTo - InsertionPoint;
-            string instruction = $"bl 0x{relativeBranch:X7}";
+            string instruction = $"bl 0x{relativeBranch:X8}";
             BranchInstruction = Assembler.Assemble(instruction);
         }
 
@@ -51,5 +51,13 @@ namespace Wiinject
             HOOK,
             REPL
         }
+    }
+
+    public class InjectionSite
+    {
+        public uint StartAddress { get; set; }
+        public uint EndAddress { get; set; }
+        public int Length => (int)(EndAddress - StartAddress + 4); // +4 for including the end address
+        public List<byte> RoutineMashup { get; set; } = new();
     }
 }
