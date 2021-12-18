@@ -8,11 +8,11 @@ using System.Text.RegularExpressions;
 
 namespace Wiinject
 {
-    class Program
+    public class Program
     {
         static void Main(string[] args)
         {
-            string folder = "", outputFolder = ".", patchName = "patch", inputPatch = "";
+            string folder = "", outputFolder = ".", patchName = "patch", inputPatch = "", devkitProPath = "C:\\devkitPro";
             uint[] injectionAddresses = new uint[0], injectionEndAddresses = new uint[0];
             bool consoleOutput = false;
 
@@ -28,6 +28,7 @@ namespace Wiinject
                 { "n|patch-name=", "The name of the patch to output. The patch will be out put to {output_folder}/Riivolution/{patch_name}.xml and the ASM bin(s) will be output to {output_folder}/{patch_name}/patch{i}.bin.",
                     n => patchName = n },
                 { "p|input-patch=", "The base Riivolution patch that will be modified by Wiinject to contain the memory patches. A blank base template will be created if this is not provided.", p => inputPatch = p },
+                { "d|devkitpro-path=", "The path to a devkitPro installation containing devkitPPC.", d => devkitProPath = d },
                 { "console-output", "Rather than producing an ASM patch, simply output the XML to the console. This will still save the ASM bin, however.", c => consoleOutput = true },
             };
 
@@ -55,6 +56,30 @@ namespace Wiinject
                 riivolution = new();
             }
 
+            string[] cFilePaths = Directory.GetFiles(folder, "*.c", SearchOption.AllDirectories);
+            List<CFile> cFiles = new();
+            if (cFilePaths.Length > 0)
+            {
+                string gccPath = Path.Combine(devkitProPath, "devkitPPC", "bin", "powerpc-eabi-gcc.exe");
+                string objdumpPath = Path.Combine(devkitProPath, "devkitPPC", "bin", "powerpc-eabi-objdump.exe");
+                if (!File.Exists(gccPath))
+                {
+                    Console.WriteLine($"Error: powerpc-eabi-gcc.exe not detected on provided devkitProPath '{gccPath}'");
+                    return;
+                }
+                if (!File.Exists(objdumpPath))
+                {
+                    Console.WriteLine($"Error: powerpc-eabi-objdump.exe not detected on provided devkitProPath '{objdumpPath}'");
+                    return;
+                }
+
+                cFiles = cFilePaths.Select(f => new CFile(f)).ToList();
+                foreach (CFile cFile in cFiles)
+                {
+                    cFile.Compile(gccPath, objdumpPath);
+                }
+            }
+
             string[] asmFiles = Directory.GetFiles(folder, "*.s", SearchOption.AllDirectories);
             Regex funcRegex = new(@"(?<mode>repl|hook)_(?<address>[A-F\d]{8}):");
             List<Routine> routines = new();
@@ -64,9 +89,48 @@ namespace Wiinject
                 injectionSites[i] = new() { StartAddress = injectionAddresses[i], EndAddress = injectionEndAddresses[i] };
             }
 
+            List<CFunction> resolvedFunctions = new();
             foreach (string asmFile in asmFiles)
             {
                 string asmFileText = File.ReadAllText(asmFile);
+
+                if (cFiles.Any(c => c.Name == Path.GetFileNameWithoutExtension(asmFile)))
+                {
+                    CFile cFile = cFiles.First(c => c.Name == Path.GetFileNameWithoutExtension(asmFile));
+
+                    foreach (Match bl in Routine.BlRegex.Matches(asmFileText))
+                    {
+                        CFunction function = cFile.Functions.First(f => f.Name == bl.Groups["function"].Value);
+                        if (!resolvedFunctions.Any(f => f.Name == function.Name))
+                        {
+                            function.FunctionsToResolve(resolvedFunctions);
+                        }
+                    }
+
+                    foreach (CFunction function in resolvedFunctions)
+                    {
+                        bool injected = false;
+                        foreach (InjectionSite injectionSite in injectionSites.OrderBy(s => s.Length - s.RoutineMashup.Count))
+                        {
+                            if (injectionSite.RoutineMashup.Count + function.Instructions.Count * 4 > injectionSite.Length)
+                            {
+                                continue;
+                            }
+
+                            function.EntryPoint = injectionSite.CurrentAddress;
+                            function.ResolveBranches();
+                            function.SetDataFromInstructions();
+                            injectionSite.RoutineMashup.AddRange(function.Data);
+                            injected = true;
+                            break;
+                        }
+                        if (!injected)
+                        {
+                            Console.WriteLine($"Error: could not inject function {function.Name}; function longer than any available injection site.");
+                        }
+                    }
+                }
+
                 string[] assemblyRoutines = funcRegex.Split(asmFileText);
 
                 for (int i = 1; i < assemblyRoutines.Length; i += 3)
@@ -85,6 +149,7 @@ namespace Wiinject
             {
                 if (routine.RoutineMode == Routine.Mode.REPL)
                 {
+                    routine.ReplaceBl(resolvedFunctions, routine.InsertionPoint);
                     riivolution.AddMemoryPatch(routine.InsertionPoint, routine.Data);
                 }
                 else
@@ -99,6 +164,7 @@ namespace Wiinject
 
                         uint branchLocation = injectionSite.StartAddress + (uint)injectionSite.RoutineMashup.Count;
                         routine.SetBranchInstruction(branchLocation);
+                        routine.ReplaceBl(resolvedFunctions, branchLocation);
                         injectionSite.RoutineMashup.AddRange(routine.Data);
                         injected = true;
                         riivolution.AddMemoryPatch(routine.InsertionPoint, routine.BranchInstruction);
@@ -106,7 +172,7 @@ namespace Wiinject
                     }
                     if (!injected)
                     {
-                        Console.WriteLine($"Error: could not inject routine beggining with {routine.Assembly.TakeWhile(c => c != '\n' && c != '\r')}; routine longer than any available injection site.");
+                        Console.WriteLine($"Error: could not inject routine beginning with {routine.Assembly.TakeWhile(c => c != '\n' && c != '\r')}; routine longer than any available injection site.");
                     }
                 }
             }

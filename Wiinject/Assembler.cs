@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Wiinject
 {
@@ -31,19 +33,52 @@ namespace Wiinject
         public byte[] Data { get; private set; }
         public byte[] BranchInstruction { get; private set; }
 
+        public static readonly Regex BlRegex = new(@"bl[\t ]+=(?<function>[\w\d_]+)");
+
         public Routine(string mode, uint insertionPoint, string assembly)
         {
             RoutineMode = (Mode)Enum.Parse(typeof(Mode), mode.ToUpper());
             Assembly = assembly;
             InsertionPoint = insertionPoint;
-            Data = Assembler.Assemble(assembly);
+            Data = Assembler.Assemble(BlRegex.Replace(assembly, "bl 0x800000")); // temporarily replace bls for assembly; will be resolved in later steps
         }
 
         public void SetBranchInstruction(uint branchTo)
         {
-            uint relativeBranch = branchTo - InsertionPoint;
-            string instruction = $"bl 0x{relativeBranch:X8}";
+            int relativeBranch = (int)(branchTo - InsertionPoint);
+            string instruction = $"bl 0x{(long)relativeBranch:X16}";
             BranchInstruction = Assembler.Assemble(instruction);
+        }
+
+        public void ReplaceBl(List<CFunction> functions, uint injectionPoint)
+        {
+            if (!BlRegex.IsMatch(Assembly))
+            {
+                return;
+            }
+
+            StringBuilder sb = new();
+            uint instructionLocation = 0;
+            foreach (string line in Assembly.Replace("\r\n", "\n").Split('\n'))
+            {
+                Match match = BlRegex.Match(line);
+                if (match.Success)
+                {
+                    int relativeBranch = (int)(functions.First(f => f.Name == match.Groups["function"].Value).EntryPoint - (injectionPoint + instructionLocation));
+                    sb.AppendLine(BlRegex.Replace(line, $"bl 0x{(long)relativeBranch:X16}"));
+                }
+                else
+                {
+                    sb.AppendLine(line);
+                }
+                if (!string.IsNullOrWhiteSpace(line) && !line.Contains(':'))
+                {
+                    instructionLocation += 4;
+                }
+            }
+
+            Assembly = sb.ToString();
+            Data = Assembler.Assemble(Assembly);
         }
 
         public enum Mode
@@ -57,6 +92,7 @@ namespace Wiinject
     {
         public uint StartAddress { get; set; }
         public uint EndAddress { get; set; }
+        public uint CurrentAddress => StartAddress + (uint)RoutineMashup.Count;
         public int Length => (int)(EndAddress - StartAddress + 4); // +4 for including the end address
         public List<byte> RoutineMashup { get; set; } = new();
     }
