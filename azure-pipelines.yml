@@ -1,8 +1,8 @@
 trigger:
 - main
 
-jobs:
-- job:
+# jobs:
+# - job:
   # strategy:
   #  matrix:
   #     Linux:
@@ -11,9 +11,9 @@ jobs:
   #       imageName: macOS-latest
   #     Windows:
   #       imageName: windows-latest
-  displayName: Build & Publish
+  # displayName: Build & Publish
   pool:
-    vmImage: macOS-latest
+    vmImage: $(imageName)
   steps:
   - checkout: self
     clean: true
