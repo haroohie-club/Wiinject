@@ -11,7 +11,16 @@ namespace Wiinject
 {
     public class Program
     {
-        static void Main(string[] args)
+        public enum WiinjectReturnCode
+        {
+            OK,
+            ADDRESS_COUNT_MISMATCH,
+            GCC_NOT_FOUND,
+            OBJDUMP_NOT_FOUND,
+            INJECTION_SITES_TOO_SMALL,
+        }
+
+        public static int Main(string[] args)
         {
             string folder = "", outputFolder = ".", patchName = "patch", inputPatch = "", devkitProPath = "C:\\devkitPro";
             uint[] injectionAddresses = new uint[0], injectionEndAddresses = new uint[0];
@@ -39,13 +48,13 @@ namespace Wiinject
             if (string.IsNullOrEmpty(folder))
             {
                 options.WriteOptionDescriptions(Console.Out);
-                return;
+                return (int)WiinjectReturnCode.OK;
             }
 
             if (injectionAddresses.Length != injectionEndAddresses.Length)
             {
                 Console.WriteLine("Error: You must provide the same number of injection addresses and end addresses");
-                return;
+                return (int)WiinjectReturnCode.ADDRESS_COUNT_MISMATCH;
             }
 
             Riivolution riivolution;
@@ -74,12 +83,12 @@ namespace Wiinject
                 if (!File.Exists(gccPath))
                 {
                     Console.WriteLine($"Error: powerpc-eabi-gcc.exe not detected on provided devkitProPath '{gccPath}'");
-                    return;
+                    return (int)WiinjectReturnCode.GCC_NOT_FOUND;
                 }
                 if (!File.Exists(objdumpPath))
                 {
                     Console.WriteLine($"Error: powerpc-eabi-objdump.exe not detected on provided devkitProPath '{objdumpPath}'");
-                    return;
+                    return (int)WiinjectReturnCode.OBJDUMP_NOT_FOUND;
                 }
 
                 cFiles = cFilePaths.Select(f => new CFile(f)).ToList();
@@ -136,7 +145,7 @@ namespace Wiinject
                         if (!injected)
                         {
                             Console.WriteLine($"Error: could not inject function {function.Name}; function longer than any available injection site.");
-                            return;
+                            return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
                         }
                         if (emitC)
                         {
@@ -158,7 +167,7 @@ namespace Wiinject
             if (injectionSites.Sum(s => s.Length) < 4)
             {
                 Console.WriteLine($"Error: Max injection length with provided addresses calculated to be {injectionSites.Sum(s => s.Length)} which is less than one instruction.");
-                return;
+                return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
             }
 
             foreach (Routine routine in routines)
@@ -189,6 +198,7 @@ namespace Wiinject
                     if (!injected)
                     {
                         Console.WriteLine($"Error: could not inject routine beginning with {routine.Assembly.TakeWhile(c => c != '\n' && c != '\r')}; routine longer than any available injection site.");
+                        return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
                     }
                 }
             }
@@ -213,6 +223,8 @@ namespace Wiinject
                 riivolution.PatchXml.Save(outputPath);
                 Console.WriteLine($"Wrote to {outputPath}");
             }
+
+            return (int)WiinjectReturnCode.OK;
         }
     }
 }
