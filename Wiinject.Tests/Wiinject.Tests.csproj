@@ -23,8 +23,4 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="dotnet run --project $(ProjectDir)../WiinjectDllCopier/WiinjectDllCopier.csproj $(TargetDir)" />
-  </Target>
-
 </Project>
