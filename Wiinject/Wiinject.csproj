@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Keystone.Net" Version="0.9.3" />
+    <PackageReference Include="Keystone.Net" Version="0.9.4" />
     <PackageReference Include="Mono.Options" Version="6.12.0.148" />
   </ItemGroup>
 
