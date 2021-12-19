@@ -27,15 +27,20 @@ Wiinject requires the following to run:
 * `--emit-c` &ndash; Emits assembled C functions to the console so you can modify your assembly calls to those functions to work with the registries used by the compiler.
 
 ### Writing ASM
-Wiinject uses the Keystone Engine to assemble standard PowerPC assembly. To write an assembly file that Wiinject can parse, however, you need to use hooks.
+Wiinject uses the Keystone Engine to assemble standard PowerPC assembly. To write an assembly file that Wiinject can parse, however, you need to use special function names.
 
 Here is a sample Wiinject-compatible assembly file:
 
 ```assembly
 hook_80017250:
-    add 5,5,0
-    mr 26,3
-    blr
+    start:
+        add 5,5,0
+        mr 26,3
+        cmpwi 5,3
+        beq end
+        li 5,2
+    end:
+        blr
 
 hook_80017254:
     mr 3,26

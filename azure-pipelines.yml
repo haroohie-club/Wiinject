@@ -19,10 +19,21 @@ jobs:
     clean: true
   - task: DotNetCoreCLI@2
     inputs:
-      command: 'publish'
-      publishWebProjects: false
+      command: 'build'
+      projects: '$(Build.SourcesDirectory)/WiinjectDllCopier/WiinjectDllCopier.csproj'
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
       projects: '$(Build.SourcesDirectory)/Wiinject/Wiinject.csproj'
-      arguments: '-c Release -o $(Build.ArtifactsStagingDirectory)'
+      arguments: '-c Release -o $(Build.ArtifactsStagingDirectory)/$(imageName)'
+  - ${{ if eq(variables['imageName'], 'windows-latest') }}:
+    - script: |
+        Remove-Item -Recurse -Force $(Build.ArtifactsStagingDirectory)\$(imageName)\*-x64
+        Remove-Item -Recurse -Force $(Build.ArtifactsStagingDirecotry)\$(imageName)\win-x86
+  - ${{ if ne(variables['imageName'], 'windows-latest') }}:
+    - script: |
+        rm -rf $(Build.ArtifactsStagingDirectory)/$(imageName)/*-x64
+        rm -rf $(Build.ArtifactsStagingDirectory)/$(imageName)/win-x86
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactsStagingDirectory)'

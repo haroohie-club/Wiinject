@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="$(SolutionDir)WiinjectDllCopier/bin/Debug/net5.0/WiinjectDllCopier $(TargetDir)" />
+    <Exec Command="$(ProjectDir)../WiinjectDllCopier/bin/Debug/net5.0/WiinjectDllCopier $(TargetDir)" />
   </Target>
 
 </Project>
