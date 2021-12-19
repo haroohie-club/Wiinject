@@ -14,7 +14,7 @@ jobs:
   displayName: Build & Publish
   pool:
     vmImage: $(imageName)
-  preSteps:
+  steps:
   - checkout: self
     clean: true
   - task: DotNetCoreCLI@2
