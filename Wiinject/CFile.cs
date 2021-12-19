@@ -152,7 +152,8 @@ namespace Wiinject
         public byte[] Data { get; set; }
         public string BranchRef { get; set; }
 
-        public bool IsBranchLink => Text.StartsWith("bl") && !Text.StartsWith("blr") && !Text.StartsWith("blt") && !Text.StartsWith("ble");
+        private static readonly Regex _branchLinkRegex = new(@"(?<mnemonic>bc?l)[\t ]");
+        public bool IsBranchLink => _branchLinkRegex.IsMatch(Text);
 
         public Instruction(string text)
         {
@@ -164,7 +165,8 @@ namespace Wiinject
         {
             if (IsBranchLink)
             {
-                Text = $"bl 0x{(long)relativeBranch:X16}";
+                Match match = _branchLinkRegex.Match(Text);
+                Text = $"{match.Groups["mnemonic"].Value} 0x{(long)relativeBranch:X16}";
                 Assemble();
             }
         }

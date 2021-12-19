@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
 namespace Wiinject
@@ -30,7 +31,7 @@ namespace Wiinject
                 { "p|input-patch=", "The base Riivolution patch that will be modified by Wiinject to contain the memory patches. A blank base template will be created if this is not provided.", p => inputPatch = p },
                 { "d|devkitpro-path=", "The path to a devkitPro installation containing devkitPPC.", d => devkitProPath = d },
                 { "console-output", "Rather than producing an ASM patch, simply output the XML to the console. This will still save the ASM bin, however.", c => consoleOutput = true },
-                { "emit-c", "Emits assembled C functions to the console so you can modify your assembly calls to those functions to work with the registries used by the compiler", c => emitC = true },
+                { "emit-c", "Emits assembled C functions to the console so you can modify your assembly calls to those functions to work with the registries used by the compiler.", c => emitC = true },
             };
 
             options.Parse(args);
@@ -61,8 +62,15 @@ namespace Wiinject
             List<CFile> cFiles = new();
             if (cFilePaths.Length > 0)
             {
-                string gccPath = Path.Combine(devkitProPath, "devkitPPC", "bin", "powerpc-eabi-gcc.exe");
-                string objdumpPath = Path.Combine(devkitProPath, "devkitPPC", "bin", "powerpc-eabi-objdump.exe");
+                string gccExe = "powerpc-eabi-gcc";
+                string objdumpExe = "powerpc-eabi-objdump";
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    gccExe += ".exe";
+                    objdumpExe += ".exe";
+                }
+                string gccPath = Path.Combine(devkitProPath, "devkitPPC", "bin", gccExe);
+                string objdumpPath = Path.Combine(devkitProPath, "devkitPPC", "bin", objdumpExe);
                 if (!File.Exists(gccPath))
                 {
                     Console.WriteLine($"Error: powerpc-eabi-gcc.exe not detected on provided devkitProPath '{gccPath}'");

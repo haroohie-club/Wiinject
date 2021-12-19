@@ -34,7 +34,7 @@ namespace Wiinject
         public byte[] Data { get; private set; }
         public byte[] BranchInstruction { get; private set; }
 
-        public static readonly Regex BlRegex = new(@"bl[\t ]+=(?<function>[\w\d_]+)");
+        public static readonly Regex BlRegex = new(@"(?<mnemonic>bc?l)[\t ]+=(?<function>[\w\d_]+)");
 
         public Routine(string mode, uint insertionPoint, string assembly)
         {
@@ -65,7 +65,7 @@ namespace Wiinject
                 if (match.Success)
                 {
                     int relativeBranch = (int)(functions.First(f => f.Name == match.Groups["function"].Value).EntryPoint - injectionPoint);
-                    sb.AppendLine(BlRegex.Replace(line, $"bl 0x{(long)relativeBranch:X16}"));
+                    sb.AppendLine(BlRegex.Replace(line, $"{match.Groups["mnemonic"].Value} 0x{(long)relativeBranch:X16}"));
                 }
                 else
                 {
