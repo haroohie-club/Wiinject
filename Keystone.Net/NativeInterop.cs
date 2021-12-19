@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
 namespace Keystone
@@ -8,29 +9,30 @@ namespace Keystone
     /// </summary>
     internal class NativeInterop
     {
-        // This shouldn't be needed, even on Windows
-        // /// <summary>
-        // /// Taken from: http://stackoverflow.com/questions/10852634/using-a-32bit-or-64bit-dll-in-c-sharp-dllimport
-        // /// </summary>
-        // static NativeInterop()
-        // {
-        //     var myPath = new Uri(typeof(NativeInterop).Assembly.CodeBase).LocalPath;
-        //     var myFolder = Path.GetDirectoryName(myPath);
+        /// <summary>
+        /// Taken from: http://stackoverflow.com/questions/10852634/using-a-32bit-or-64bit-dll-in-c-sharp-dllimport
+        /// </summary>
+        //static NativeInterop()
+        //{
+        //    string myPath = new Uri(typeof(NativeInterop).Assembly.CodeBase).LocalPath;
+        //    string myFolder = Path.GetDirectoryName(myPath);
 
-        //     var is64 = IntPtr.Size == 8;
-        //     var subfolder = is64 ? "\\win64\\" : "\\win32\\";
+        //    bool is64 = IntPtr.Size == 8;
+        //    string subfolder = is64 ? "\\win64\\" : "\\win32\\";
 
-        //     string dllPosition = myFolder + subfolder + "keystone.dll";
+        //    string dllPosition = Path.Combine(myFolder, subfolder, "keystone.dll");
 
-        //     // If this file exist, load it. 
-        //     // Otherwise let the marshaller load the appropriate file.
-        //     if (File.Exists(dllPosition))
-        //         LoadLibrary(dllPosition);
-        // }
+        //    // If this file exist, load it. 
+        //    // Otherwise let the marshaller load the appropriate file.
+        //    if (File.Exists(dllPosition))
+        //    {
+        //        LoadLibrary(dllPosition);
+        //    }
+        //}
 
         // [DllImport("kernel32.dll")]
         // private static extern IntPtr LoadLibrary(string dllToLoad);
-        
+
         [DllImport("keystone", CallingConvention = CallingConvention.Cdecl, EntryPoint = "ks_version" )]
         internal static extern uint Version(ref uint major, ref uint minor);
         
