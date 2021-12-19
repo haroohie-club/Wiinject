@@ -12,19 +12,19 @@ trigger:
   #     Windows:
   #       imageName: windows-latest
   # displayName: Build & Publish
-  pool:
-    vmImage: $(imageName)
-  steps:
-  - checkout: self
-    clean: true
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'publish'
-      publishWebProjects: false
-      projects: '$(Build.SourcesDirectory)/Wiinject/Wiinject.csproj'
-      arguments: '-c Release -o $(Build.ArtifactsStagingDirectory)'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactsStagingDirectory)'
-      ArtifactName: 'drop'
-      publishLocation: 'Container'
+pool:
+  vmImage: $(imageName)
+steps:
+- checkout: self
+  clean: true
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '$(Build.SourcesDirectory)/Wiinject/Wiinject.csproj'
+    arguments: '-c Release -o $(Build.ArtifactsStagingDirectory)'
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactsStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
