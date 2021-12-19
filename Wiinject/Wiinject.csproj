@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="keystoneengine.csharp" Version="0.9.1.1" />
+    <PackageReference Include="Keystone.Net" Version="0.9.2" />
     <PackageReference Include="Mono.Options" Version="6.12.0.148" />
   </ItemGroup>
 
@@ -23,5 +23,9 @@
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="$(SolutionDir)WiinjectDllCopier/bin/Debug/net5.0/WiinjectDllCopier.exe $(TargetDir)" />
+  </Target>
 
 </Project>
