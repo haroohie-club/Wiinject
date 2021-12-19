@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Keystone</RootNamespace>
 
-    <Version>0.9.2</Version>
+    <Version>0.9.4</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version).0</FileVersion>
 
