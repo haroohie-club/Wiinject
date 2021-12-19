@@ -4,20 +4,20 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Keystone</RootNamespace>
 
-    <Version>1.1.0</Version>
+    <Version>0.9.2</Version>
     <AssemblyVersion>$(Version)</AssemblyVersion>
     <FileVersion>$(Version).0</FileVersion>
 
     <Description>.NET bindings to the Keystone Engine.</Description>
-    <Authors>Grégoire Geis</Authors>
+    <Authors>Jonko</Authors>
 
     <PackageId>Keystone.Net</PackageId>
     <PackageVersion>$(Version)</PackageVersion>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>- First release.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Adding support for OSX and Linux packages</PackageReleaseNotes>
     <PackageTags>assembler x86 arm keystone</PackageTags>
 
-    <PackageProjectUrl>https://github.com/keystone-engine/keystone</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/jonko0493/keystone</PackageProjectUrl>
     <PackageLicenseUrl>$(PackageProjectUrl)/blob/master/COPYING</PackageLicenseUrl>
     <PackageIconUrl>http://www.keystone-engine.org/images/keystone.png</PackageIconUrl>
 
