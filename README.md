@@ -47,7 +47,7 @@ instructions directly with the instructions provided.
 ### Writing C
 
 For each ASM file, you may also provide a companion C file to compile and inject methods which may then be called from the ASM. In order to use this functionality, you must
-install [devkitPro](https://devkitpro.org/wiki/Getting_Started) and provide Wiinject with the path to the devkitPro installation (e.g. C:\devkitPro or /opt/devkitpro).
+install [devkitPro](https://devkitpro.org/wiki/Getting_Started) and provide Wiinject with the path to the devkitPro installation (e.g. C:\devkitPro).
 
 Injected C methods are called from the ASM via `bl =method_name`. The assembly function caller will need to handle stack manipulation and inputs itself. Generally, you can expect
 a compiled C method to accept inputs sequentially starting with `r3` and to place its return value in `r3`. However, in order to verify this, you can use the `--emit-c` flag while
