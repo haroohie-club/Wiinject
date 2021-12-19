@@ -3,45 +3,17 @@ trigger:
 
 jobs:
 - job:
-  displayName: Windows Build & Publish
-  pool:
-    vmImage: windows-latest
-  steps:
-  - checkout: self
-    clean: true
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'publish'
-      publishWebProjects: false
-      projects: '$(Build.SourcesDirectory)/Wiinject/Wiinject.csproj'
-      arguments: '-c Release -o $(Build.ArtifactsStagingDirectory)'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactsStagingDirectory)'
-      ArtifactName: 'drop'
-      publishLocation: 'Container'
-- job:
-  displayName: macOS Build & Publish
+  # strategy:
+  #  matrix:
+  #     Linux:
+  #       imageName: linux-latest
+  #     macOS:
+  #       imageName: macOS-latest
+  #     Windows:
+  #       imageName: windows-latest
+  displayName: Build & Publish
   pool:
     vmImage: macOS-latest
-  steps:
-  - checkout: self
-    clean: true
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'publish'
-      publishWebProjects: false
-      projects: '$(Build.SourcesDirectory)/Wiinject/Wiinject.csproj'
-      arguments: '-c Release -o $(Build.ArtifactsStagingDirectory)'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(Build.ArtifactsStagingDirectory)'
-      ArtifactName: 'drop'
-      publishLocation: 'Container'
-- job:
-  displayName: Linux Build & Publish
-  pool:
-    vmImage: ubuntu-latest
   steps:
   - checkout: self
     clean: true
