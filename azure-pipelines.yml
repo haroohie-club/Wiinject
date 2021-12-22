@@ -21,11 +21,11 @@ jobs:
     inputs:
       command: 'build'
       projects: '$(Build.SourcesDirectory)/Wiinject/Wiinject.csproj'
-      arguments: '-c Release -o $(Build.ArtifactsStagingDirectory)/$(imageName)'
+      arguments: '-c Release -o $(Build.ArtifactStagingDirectory)/$(imageName)'
     displayName: Build Wiinject
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactsStagingDirectory)'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
       ArtifactName: 'drop'
       publishLocation: 'Container'
     displayName: Publish Wiinject
