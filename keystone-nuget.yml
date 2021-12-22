@@ -49,10 +49,10 @@ stages:
       inputs:
         source: 'current'
         artifact: 'lib'
-        patterns:
-          - '*.dylib'
-          - '*.dll'
-          - '*.so.0'
+        patterns: | 
+          **/*.dll
+          **/*.dylib
+          **/*.so.0'
         path: $(Build.SourcesDirectory)
       displayName: Download dlls
     - task: PublishBuildArtifacts@1
