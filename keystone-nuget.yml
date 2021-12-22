@@ -24,8 +24,6 @@ stages:
         cd build
         ..\nmake-dll.bat
         make
-      displayName: Clone and Build Libraries (Windows)
-      condition: eq(variables.imageName, 'windows-latest')
     - script: |
         git clone https://github.com/keystone-engine/keystone.git
         cd keystone
@@ -41,5 +39,26 @@ stages:
         ArtifactName: 'lib'
         publishLocation: 'Container'
       displayName: Publish Libraries
-
-  
+- stage:
+  displayName: NuGet Packaging
+  jobs:
+  - job:
+    displayName: Package NuGet package
+    steps:
+    - task: DownloadPipelineArtifacts@2
+      inputs:
+        source: 'current'
+        artifact: 'lib'
+        patterns:
+          - '*.dylib'
+          - '*.dll'
+          - '*.so.0'
+        path: $(Build.SourcesDirectory)
+      displayName: Download dlls
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathToPublish: '$(Build.SourcesDirectory)'
+        ArtifactName: 'keystone.nupkg'
+        publishLocation: 'Container'
+      displayName: Publish Nupkg
+        
