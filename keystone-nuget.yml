@@ -22,7 +22,7 @@ stages:
         cd keystone
         mkdir build
         cd build
-        ..\nmake-dll.bat
+        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DLLVM_TARGETS_TO_BUILD="all" -G "NMake Makefiles" ..
         make
     - script: |
         git clone https://github.com/keystone-engine/keystone.git
