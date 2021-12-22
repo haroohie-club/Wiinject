@@ -25,7 +25,7 @@ stages:
         ..\nmake-dll.bat
         make
       displayName: Clone and Build Libraries (Windows)
-      condition: eq($(imageName), 'windows-latest')
+      condition: eq(variables.imageName, 'windows-latest')
     - script: |
         git clone https://github.com/keystone-engine/keystone.git
         cd keystone
@@ -34,7 +34,7 @@ stages:
         ../make-share.sh lib_only
         make
       displayName: Clone and Build Libraries (Unix)
-      condition: ne($(imageName), 'windows-latest')
+      condition: ne(variables.imageName, 'windows-latest')
     - task: PublishBuildArtifacts@1
       inputs:
         PathtoPublish: '$(Build.SourcesDirectory)/keystone/build/llvm/lib'
