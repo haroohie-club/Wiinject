@@ -1,3 +1,5 @@
+trigger: none
+
 stages:
 - stage:
   displayName: Build & Publish
@@ -15,18 +17,29 @@ stages:
     pool:
       vmImage: $(imageName)
     steps:
-    - script: git clone https://github.com/keystone-engine/keystone.git
     - ${{ if eq(variables.imageName, 'windows-latest') }}:
       - powershell: |
+          git clone https://github.com/keystone-engine/keystone.git
           cd keystone
           mkdir build
           cd build
-          ..\nmake-dll.bat
+          $(Build.SourcesDirectory)\nmake-dll.bat
+          make
+        displayName: Clone and Build Libraries
     - ${{ if ne(variables.imageName, 'windows-latest') }}:
       - script: |
+          git clone https://github.com/keystone-engine/keystone.git
           cd keystone
           mkdir build
           cd build
           ../make-share.sh lib_only
+          make
+        displayName: Clone and Build Libraries
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)/build/llvm/lib'
+        ArtifactName: 'lib'
+        publishLocation: 'Container'
+      displayName: Publish Libraries
 
   
