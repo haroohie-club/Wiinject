@@ -17,7 +17,7 @@ stages:
     pool:
       vmImage: $(imageName)
     steps:
-    - ${{ if eq(variables.imageName, 'windows-latest') }}:
+    - ${{ if eq(variables['imageName'], 'windows-latest') }}:
       - powershell: |
           git clone https://github.com/keystone-engine/keystone.git
           cd keystone
@@ -25,8 +25,8 @@ stages:
           cd build
           $(Build.SourcesDirectory)\nmake-dll.bat
           make
-        displayName: Clone and Build Libraries
-    - ${{ if ne(variables.imageName, 'windows-latest') }}:
+        displayName: Clone and Build Libraries (Windows)
+    - ${{ if ne(variables.['imageName'], 'windows-latest') }}:
       - script: |
           git clone https://github.com/keystone-engine/keystone.git
           cd keystone
@@ -34,10 +34,10 @@ stages:
           cd build
           ../make-share.sh lib_only
           make
-        displayName: Clone and Build Libraries
+        displayName: Clone and Build Libraries (Unix)
     - task: PublishBuildArtifacts@1
       inputs:
-        PathtoPublish: '$(Build.SourcesDirectory)/build/llvm/lib'
+        PathtoPublish: '$(Build.SourcesDirectory)/keystone/build/llvm/lib'
         ArtifactName: 'lib'
         publishLocation: 'Container'
       displayName: Publish Libraries
