@@ -17,7 +17,7 @@ stages:
     pool:
       vmImage: $(imageName)
     steps:
-    - ${{ if eq(variables['imageName'], 'windows-latest') }}:
+    - ${{ if eq($(imageName), 'windows-latest') }}:
       - powershell: |
           git clone https://github.com/keystone-engine/keystone.git
           cd keystone
@@ -26,7 +26,7 @@ stages:
           $(Build.SourcesDirectory)\nmake-dll.bat
           make
         displayName: Clone and Build Libraries (Windows)
-    - ${{ if ne(variables['imageName'], 'windows-latest') }}:
+    - ${{ if ne($(imageName), 'windows-latest') }}:
       - script: |
           git clone https://github.com/keystone-engine/keystone.git
           cd keystone
