@@ -16,14 +16,15 @@ stages:
       vmImage: $(imageName)
     steps:
     - script: git clone https://github.com/keystone-engine/keystone.git
-    - script: cd keystone
     - ${{ if eq(variables.imageName, 'windows-latest') }}:
       - powershell: |
+          cd keystone
           mkdir build
           cd build
-          ../nmake-dll.bat
+          ..\nmake-dll.bat
     - ${{ if ne(variables.imageName, 'windows-latest') }}:
       - script: |
+          cd keystone
           mkdir build
           cd build
           ../make-share.sh lib_only
