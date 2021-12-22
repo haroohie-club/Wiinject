@@ -82,12 +82,12 @@ namespace Wiinject
                 string objdumpPath = Path.Combine(devkitProPath, "devkitPPC", "bin", objdumpExe);
                 if (!File.Exists(gccPath))
                 {
-                    Console.WriteLine($"Error: powerpc-eabi-gcc.exe not detected on provided devkitProPath '{gccPath}'");
+                    Console.WriteLine($"Error: {gccExe} not detected on provided devkitProPath '{gccPath}'");
                     return (int)WiinjectReturnCode.GCC_NOT_FOUND;
                 }
                 if (!File.Exists(objdumpPath))
                 {
-                    Console.WriteLine($"Error: powerpc-eabi-objdump.exe not detected on provided devkitProPath '{objdumpPath}'");
+                    Console.WriteLine($"Error: {objdumpExe} not detected on provided devkitProPath '{objdumpPath}'");
                     return (int)WiinjectReturnCode.OBJDUMP_NOT_FOUND;
                 }
 
