@@ -6,7 +6,7 @@ jobs:
   strategy:
    matrix:
       Linux:
-        imageName: linux-latest
+        imageName: ubuntu-latest
       macOS:
         imageName: macOS-latest
       Windows:
@@ -22,10 +22,10 @@ jobs:
       command: 'build'
       projects: '$(Build.SourcesDirectory)/Wiinject/Wiinject.csproj'
       arguments: '-c Release -o $(Build.ArtifactsStagingDirectory)/$(imageName)'
-      displayName: Build Wiinject
+    displayName: Build Wiinject
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(Build.ArtifactsStagingDirectory)'
       ArtifactName: 'drop'
       publishLocation: 'Container'
-      displayName: Publish Wiinject
+    displayName: Publish Wiinject
