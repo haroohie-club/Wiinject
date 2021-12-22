@@ -1,0 +1,31 @@
+stages:
+- stage:
+  displayName: Build & Publish
+  jobs:
+  - job:
+    displayName: Build & Publish
+    strategy:
+      matrix:
+        Linux:
+          imageName: ubuntu-latest
+        macOS:
+          imageName: macOS-latest
+        Windows:
+          imageName: windows-latest
+    pool:
+      vmImage: $(imageName)
+    steps:
+    - script: git clone https://github.com/keystone-engine/keystone.git
+    - script: cd keystone
+    - ${{ if eq(variables.imageName, 'windows-latest') }}:
+      - powershell: |
+          mkdir build
+          cd build
+          ../nmake-dll.bat
+    - ${{ if ne(variables.imageName, 'windows-latest') }}:
+      - script: |
+          mkdir build
+          cd build
+          ../make-share.sh lib_only
+
+  

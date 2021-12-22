@@ -4,7 +4,7 @@ trigger:
 jobs:
 - job:
   strategy:
-   matrix:
+    matrix:
       Linux:
         imageName: ubuntu-latest
       macOS:
@@ -19,7 +19,7 @@ jobs:
     clean: true
   - task: DotNetCoreCLI@2
     inputs:
-      command: 'build'
+      command: 'publish'
       projects: '$(Build.SourcesDirectory)/Wiinject/Wiinject.csproj'
       arguments: '-c Release -o $(Build.ArtifactStagingDirectory)/$(imageName)'
     displayName: Build Wiinject
