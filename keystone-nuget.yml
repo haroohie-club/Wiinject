@@ -45,7 +45,7 @@ stages:
   - job:
     displayName: Package NuGet package
     steps:
-    - task: DownloadPipelineArtifacts@2
+    - task: DownloadPipelineArtifact@2
       inputs:
         source: 'current'
         artifact: 'lib'
