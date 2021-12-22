@@ -26,7 +26,7 @@ stages:
           $(Build.SourcesDirectory)\nmake-dll.bat
           make
         displayName: Clone and Build Libraries (Windows)
-    - ${{ if ne(variables.['imageName'], 'windows-latest') }}:
+    - ${{ if ne(variables['imageName'], 'windows-latest') }}:
       - script: |
           git clone https://github.com/keystone-engine/keystone.git
           cd keystone
