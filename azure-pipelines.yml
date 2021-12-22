@@ -22,7 +22,7 @@ jobs:
       command: 'publish'
       publishWebProjects: false
       projects: '$(Build.SourcesDirectory)/Wiinject/Wiinject.csproj'
-      arguments: '-c Release -o $(Build.ArtifactStagingDirectory)/$(imageName) /bl:publish.binlog'
+      arguments: '-c Release -o $(Build.ArtifactStagingDirectory)/$(imageName) /bl:$(Build.ArtifactStagingDirectory)/publish.binlog'
       zipAfterPublish: false
     displayName: Build Wiinject
   - task: PublishBuildArtifacts@1
