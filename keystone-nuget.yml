@@ -24,7 +24,7 @@ stages:
         $env:Path += ";$(Build.SourcesDirectory)\vs2012_buildtools"
         git clone https://github.com/keystone-engine/keystone.git
         cd keystone/bindings/python
-        python setup.py build -p win64 bdist_wheel -p win64
+        python setup.py build -p win64
       displayName: Clone and Build Libraries (Windows)
     # - powershell: |
     #     Set-PSDebug -Trace 1
