@@ -119,6 +119,3 @@ hook_8001726C:
 
 Wiinject.sln can be opened in Visual Studio 2019 or (presumably) later and built from there. You can also build Wiinject.sln from the command line on any platform that
 supports .NET 5.0 with `dotnet build` in the root directory.
-
-Wiinject relies on a customized version of the Keystone C# binding and that customization doesn't yet work perfectly so there's a little bit of jank here. The WiinjectDllCopier
-project makes things work for the time being. It's run as a post-build command during the Wiinject build and copies the platform-appropriate keystone.dll next to the main executable.
