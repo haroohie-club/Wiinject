@@ -60,7 +60,8 @@ stages:
   displayName: NuGet Packaging
   jobs:
   - job:
-    pool: ubuntu-latest
+    pool:
+      vmImage: ubuntu-latest
     displayName: Package NuGet package
     steps:
     - task: DownloadPipelineArtifact@2
@@ -90,4 +91,3 @@ stages:
         ArtifactName: 'keystone.nupkg'
         publishLocation: 'Container'
       displayName: Publish Nupkg
-        
