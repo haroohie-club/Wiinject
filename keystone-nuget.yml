@@ -18,12 +18,14 @@ stages:
       vmImage: $(imageName)
     steps:
     - powershell: |
+        Invoke-WebRequest -Uri https://dockerbootstrap.blob.core.windows.net/dockerbootstrap/vs2012_buildtools.zip -OutFile vs2012_buildtools.zip
+        Expand-Archive vs2012_buildtools.zip
+        $env:Path += ";$(Build.SourcesDirectory)\vs2012_buildtools"
         git clone https://github.com/keystone-engine/keystone.git
         cd keystone
         mkdir build
         cd build
-        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DLLVM_TARGETS_TO_BUILD="all" -G "NMake Makefiles" ..
-        make
+        ..\nmake-dlls.bat
       condition: eq(variables.imageName, 'windows-latest')
     - script: |
         git clone https://github.com/keystone-engine/keystone.git
