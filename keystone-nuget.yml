@@ -32,10 +32,10 @@ stages:
         mkdir $(Build.SourcesDirectory)\keystone\build\llvm\lib\
         Invoke-WebRequest -Uri https://github.com/keystone-engine/keystone/releases/download/0.9.2/keystone-0.9.2-win32.zip -OutFile keystone-0.9.2-win32.zip
         Expand-Archive keystone-0.9.2-win32.zip
-        Copy-Item keystone-0.9.2-win32.zip\keystone.dll $(Build.SourcesDirectory)\keystone\build\llvm\lib\
+        Copy-Item keystone-0.9.2-win32\keystone.dll $(Build.SourcesDirectory)\keystone\build\llvm\lib\
         Invoke-WebRequest -Uri https://github.com/keystone-engine/keystone/releases/download/0.9.2/keystone-0.9.2-win64.zip -OutFile keystone-0.9.2-win64.zip
         Expand-Archive keystone-0.9.2-win64.zip
-        Copy-Item keystone-0.9.2-win64.zip\keystone.dll $(Build.SourcesDirectory)\keystone\build\llvm\lib\
+        Copy-Item keystone-0.9.2-win64\keystone.dll $(Build.SourcesDirectory)\keystone\build\llvm\lib\
       displayName: Download Libraries (Windows)
       condition: eq(variables.imageName, 'windows-latest')
     - script: |
