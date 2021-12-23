@@ -26,8 +26,7 @@ stages:
         cd keystone
         mkdir build
         cd build
-        $env:CMAKE_C_COMPILER=cl.exe
-        $env:CMAKE_CXX_COMPILER=cl.exe
+        vcvars32.bat
         ..\nmake-dll.bat
       displayName: Clone and Build Libraries (Windows)
       condition: eq(variables.imageName, 'windows-latest')
