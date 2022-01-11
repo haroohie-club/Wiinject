@@ -1,0 +1,64 @@
+trigger: none
+
+stages:
+- stage:
+  displayName: Build & Publish
+  jobs:
+  - job:
+    displayName: Build & Publish
+    strategy:
+      matrix:
+        Linux:
+          imageName: ubuntu-latest
+        macOS:
+          imageName: macOS-latest
+        Windows:
+          imageName: windows-latest
+    pool:
+      vmImage: $(imageName)
+    steps:
+    - powershell: |
+        git clone https://github.com/keystone-engine/keystone.git
+        cd keystone
+        mkdir build
+        cd build
+        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DLLVM_TARGETS_TO_BUILD="all" -G "NMake Makefiles" ..
+        make
+    - script: |
+        git clone https://github.com/keystone-engine/keystone.git
+        cd keystone
+        mkdir build
+        cd build
+        ../make-share.sh lib_only
+        make
+      displayName: Clone and Build Libraries (Unix)
+      condition: ne(variables.imageName, 'windows-latest')
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.SourcesDirectory)/keystone/build/llvm/lib'
+        ArtifactName: 'lib'
+        publishLocation: 'Container'
+      displayName: Publish Libraries
+- stage:
+  displayName: NuGet Packaging
+  jobs:
+  - job:
+    displayName: Package NuGet package
+    steps:
+    - task: DownloadPipelineArtifact@2
+      inputs:
+        source: 'current'
+        artifact: 'lib'
+        patterns: | 
+          **/*.dll
+          **/*.dylib
+          **/*.so.0'
+        path: $(Build.SourcesDirectory)
+      displayName: Download dlls
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathToPublish: '$(Build.SourcesDirectory)'
+        ArtifactName: 'keystone.nupkg'
+        publishLocation: 'Container'
+      displayName: Publish Nupkg
+        
