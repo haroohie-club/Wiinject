@@ -31,7 +31,7 @@ namespace Wiinject.Tests
             Console.WriteLine(functions[1].Data.ToHexString());
             Assert.IsTrue(functions[1].Data.ToHexString().Contains(expectedAsm));
         }
-        
+
         [Test]
         public void ResolveRecursiveBranchTest()
         {
