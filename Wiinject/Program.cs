@@ -99,7 +99,9 @@ namespace Wiinject
             }
 
             string[] asmFiles = Directory.GetFiles(folder, "*.s", SearchOption.AllDirectories);
+            Regex varRegex = new(@"\$(?<name>[\w\d_]+): (?<instruction>.+)\r?\n");
             Regex funcRegex = new(@"(?<mode>repl|hook)_(?<address>[A-F\d]{8}):");
+            List<Variable> variables = new();
             List<Routine> routines = new();
             InjectionSite[] injectionSites = new InjectionSite[injectionAddresses.Length];
             for (int i = 0; i < injectionSites.Length; i++)
@@ -156,11 +158,17 @@ namespace Wiinject
                     }
                 }
 
+                string[] variableDeclarations = varRegex.Split(asmFileText);
+                for (int i = 1; i< variableDeclarations.Length; i += 3)
+                {
+                    variables.Add(new(variableDeclarations[i], variableDeclarations[i + 1]));
+                }
+
                 string[] assemblyRoutines = funcRegex.Split(asmFileText);
 
                 for (int i = 1; i < assemblyRoutines.Length; i += 3)
                 {
-                    routines.Add(new Routine(assemblyRoutines[i], uint.Parse(assemblyRoutines[i + 1], NumberStyles.HexNumber), assemblyRoutines[i + 2]));
+                    routines.Add(new(assemblyRoutines[i], uint.Parse(assemblyRoutines[i + 1], NumberStyles.HexNumber), assemblyRoutines[i + 2]));
                 }
             }
 
@@ -168,6 +176,28 @@ namespace Wiinject
             {
                 Console.WriteLine($"Error: Max injection length with provided addresses calculated to be {injectionSites.Sum(s => s.Length)} which is less than one instruction.");
                 return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
+            }
+
+            foreach (Variable variable in variables)
+            {
+                bool injected = false;
+                foreach (InjectionSite injectionSite in injectionSites.OrderBy(s => s.Length - s.RoutineMashup.Count))
+                {
+                    if (injectionSite.RoutineMashup.Count + variable.Data.Length > injectionSite.Length)
+                    {
+                        continue;
+                    }
+
+                    variable.InsertionPoint = injectionSite.StartAddress + (uint)injectionSite.RoutineMashup.Count;
+                    injectionSite.RoutineMashup.AddRange(variable.Data);
+                    injected = true;
+                    break;
+                }
+                if (!injected)
+                {
+                    Console.WriteLine($"Error: could not inject variable {variable.Name}; variable longer than any available injection site.");
+                    return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
+                }
             }
 
             foreach (Routine routine in routines)
@@ -189,6 +219,7 @@ namespace Wiinject
 
                         uint branchLocation = injectionSite.StartAddress + (uint)injectionSite.RoutineMashup.Count;
                         routine.SetBranchInstruction(branchLocation);
+                        routine.ReplaceLv(variables);
                         routine.ReplaceBl(resolvedFunctions, branchLocation);
                         injectionSite.RoutineMashup.AddRange(routine.Data);
                         injected = true;

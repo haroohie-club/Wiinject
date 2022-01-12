@@ -23,8 +23,8 @@ namespace Wiinject.Tests
     <memory offset=""0x8006FCB0"" value=""7F28CB78"" />
     <memory offset=""0x8006FBA4"" value=""7F26CB787F47D378"" />
     <memory offset=""0x8006FBB0"" value=""7F88E378"" />
-    <memory offset=""0x80017250"" value=""4BFECDB1"" />
-    <memory offset=""0x8001726C"" value=""4BFFCD95"" />
+    <memory offset=""0x80017250"" value=""4BFFCDB1"" />
+    <memory offset=""0x8001726C"" value=""4BFFCDB1"" />
     <memory offset=""0x80004000"" valuefile=""/test-patch/patch0.bin"" />
     <memory offset=""0x80014000"" valuefile=""/test-patch/patch1.bin"" />
   </patch>
