@@ -23,12 +23,12 @@ namespace Wiinject
         public static int Main(string[] args)
         {
             string folder = "", outputFolder = ".", patchName = "patch", inputPatch = "", devkitProPath = "C:\\devkitPro";
-            uint[] injectionAddresses = new uint[0], injectionEndAddresses = new uint[0];
+            uint[] injectionAddresses = Array.Empty<uint>(), injectionEndAddresses = Array.Empty<uint>();
             bool consoleOutput = false, emitC = false;
 
             OptionSet options = new()
             {
-                { "f|folder=", "The folder where your .s ASM files live", f => folder = f },
+                { "f|folder=", "The folder where your source files live", f => folder = f },
                 { "i|injection-addresses=", "The addresses to inject function code at, comma delimited. The code at these addresses should be safe to overwrite.",
                     i => injectionAddresses = i.Split(',').Select(a => uint.Parse(a, NumberStyles.HexNumber)).ToArray() },
                 { "e|injection-ends=",
