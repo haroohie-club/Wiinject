@@ -18,6 +18,7 @@ namespace Wiinject
             GCC_NOT_FOUND,
             OBJDUMP_NOT_FOUND,
             INJECTION_SITES_TOO_SMALL,
+            DUPLICATE_VARIABLE_NAME,
         }
 
         public static int Main(string[] args)
@@ -162,6 +163,12 @@ namespace Wiinject
                 for (int i = 1; i< variableDeclarations.Length; i += 3)
                 {
                     variables.Add(new(variableDeclarations[i], variableDeclarations[i + 1]));
+                }
+
+                if (variables.Any(v => variables.Count(v2 => v2.Name == v.Name) > 1))
+                {
+                    Console.WriteLine($"Error: Duplicate variables '{variables.First(v => variables.Count(v2 => v2.Name == v.Name) > 1).Name}' detected.");
+                    return (int)WiinjectReturnCode.DUPLICATE_VARIABLE_NAME;
                 }
 
                 string[] assemblyRoutines = funcRegex.Split(asmFileText);

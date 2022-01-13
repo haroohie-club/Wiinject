@@ -9,7 +9,7 @@ namespace Wiinject.Tests
         public void SuccessfulAsmOnlyTest()
         {
             int returnCode = Program.Main(new string[] {
-                "-f", "test-cases",
+                "-f", "test-cases/good",
                 "-i", "80004000,80014000",
                 "-e", "80004010,80014100",
                 "-o", "out-cases",
@@ -34,8 +34,9 @@ namespace Wiinject.Tests
         [Test]
         public void AddressCountMismatchTest()
         {
-            int returnCode = Program.Main(new string[] {
-                "-f", "test-cases",
+            int returnCode = Program.Main(new string[]
+            {
+                "-f", "test-cases/good",
                 "-i", "80004000",
                 "-e", "80004010,80014100",
                 "-o", "out-cases",
@@ -46,10 +47,27 @@ namespace Wiinject.Tests
         }
 
         [Test]
+        public void GccNotFoundTest()
+        {
+            int returnCode = Program.Main(new string[]
+            {
+                "-f", "test-cases/gcc_not_found",
+                "-i", "80004000",
+                "-e", "80014000",
+                "-o", "out-cases",
+                "-n", "test-patch",
+                "-d", "devkitpro-not-here",
+            });
+
+            Assert.AreEqual((int)Program.WiinjectReturnCode.GCC_NOT_FOUND, returnCode);
+        }
+
+        [Test]
         public void InjectionSitesTooSmallTest()
         {
-            int returnCode = Program.Main(new string[] {
-                "-f", "test-cases",
+            int returnCode = Program.Main(new string[]
+            {
+                "-f", "test-cases/good",
                 "-i", "80004000",
                 "-e", "80004010",
                 "-o", "out-cases",
@@ -57,6 +75,21 @@ namespace Wiinject.Tests
             });
 
             Assert.AreEqual((int)Program.WiinjectReturnCode.INJECTION_SITES_TOO_SMALL, returnCode);
+        }
+
+        [Test]
+        public void DuplicateVariablesTest()
+        {
+            int returnCode = Program.Main(new string[]
+            {
+                "-f", "test-cases/duplicate_variables",
+                "-i", "80004000",
+                "-e", "80014000",
+                "-o", "out-cases",
+                "-n", "test-patch"
+            });
+
+            Assert.AreEqual((int)Program.WiinjectReturnCode.DUPLICATE_VARIABLE_NAME, returnCode);
         }
     }
 }

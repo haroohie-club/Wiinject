@@ -18,7 +18,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="test-cases\test.s">
+    <None Update="test-cases\duplicate_variables\test1.s">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="test-cases\duplicate_variables\test2.s">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="test-cases\gcc_not_found\test.c">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="test-cases\gcc_not_found\test.s">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="test-cases\good\test.s">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
