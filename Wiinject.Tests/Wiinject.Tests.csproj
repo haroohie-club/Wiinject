@@ -18,6 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="test-cases\bad\test.s">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="test-cases\duplicate_variables\test1.s">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

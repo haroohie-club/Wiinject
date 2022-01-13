@@ -8,7 +8,8 @@ namespace Wiinject.Tests
         [Test]
         public void SuccessfulAsmOnlyTest()
         {
-            int returnCode = Program.Main(new string[] {
+            int returnCode = Program.Main(new string[]
+            {
                 "-f", "test-cases/good",
                 "-i", "80004000,80014000",
                 "-e", "80004010,80014100",
@@ -29,6 +30,23 @@ namespace Wiinject.Tests
     <memory offset=""0x80014000"" valuefile=""/test-patch/patch1.bin"" />
   </patch>
 </wiidisc>");
+        }
+
+        [Test]
+        public void BadAsmTest()
+        {
+            Keystone.KeystoneException exception = Assert.Throws<Keystone.KeystoneException>(delegate {
+                Program.Main(new string[]
+                {
+                    "-f", "test-cases/bad",
+                    "-i", "80004000,80014000",
+                    "-e", "80004010,80014100",
+                    "-o", "out-cases",
+                    "-n", "test-patch"
+                });
+            });
+
+            Assert.AreEqual("Error while assembling instructions.", exception.Message);
         }
 
         [Test]
