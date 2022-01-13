@@ -14,7 +14,7 @@ Wiinject requires the following to run:
 * [devkitPro](https://devkitpro.org/wiki/Getting_Started) if compiling C code
 
 ### CLI Options
-* `-f|--folder` &ndash; The folder where your `.s` ASM files live
+* `-f|--folder` &ndash; The folder where your source files live
 * `-i|--injection-addresses` &ndash; The addresses to inject function code at, comma delimited. The code at these addresses should be safe to overwrite.
 * `-e|--injection-ends` &ndash; The addresses at which the above injection sites end (are no longer safe to overwrite), comma delimited.
                                 If the code is unable to fit in any of these injection sites, an error will be thrown.
@@ -119,6 +119,3 @@ hook_8001726C:
 
 Wiinject.sln can be opened in Visual Studio 2019 or (presumably) later and built from there. You can also build Wiinject.sln from the command line on any platform that
 supports .NET 5.0 with `dotnet build` in the root directory.
-
-Wiinject relies on a customized version of the Keystone C# binding and that customization doesn't yet work perfectly so there's a little bit of jank here. The WiinjectDllCopier
-project makes things work for the time being. It's run as a post-build command during the Wiinject build and copies the platform-appropriate keystone.dll next to the main executable.

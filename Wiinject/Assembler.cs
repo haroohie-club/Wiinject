@@ -35,13 +35,16 @@ namespace Wiinject
         public byte[] BranchInstruction { get; private set; }
 
         public static readonly Regex BlRegex = new(@"(?<mnemonic>bc?l)[\t ]+=(?<function>[\w\d_]+)");
+        public static readonly Regex LvRegex = new(@"lv[\t ]+(?<register>\d{1,2})[\t ]*,[\t ]*\$(?<variableName>[\w\d_]+)");
 
         public Routine(string mode, uint insertionPoint, string assembly)
         {
             RoutineMode = (Mode)Enum.Parse(typeof(Mode), mode.ToUpper());
             Assembly = assembly;
             InsertionPoint = insertionPoint;
-            Data = Assembler.Assemble(BlRegex.Replace(assembly, "bl 0x800000")); // temporarily replace bls for assembly; will be resolved in later steps
+            string blReplacedAssembly = BlRegex.Replace(assembly, "bl 0x800000"); // temporarily replace bls for assembly; will be resolved in later steps
+            string lvReplacedAssembly = LvRegex.Replace(blReplacedAssembly, "lis 1,0x8000\naddi 1,1,0x0000"); // also temporarily replace the variable refs
+            Data = Assembler.Assemble(lvReplacedAssembly);
         }
 
         public void SetBranchInstruction(uint branchTo)
@@ -65,7 +68,7 @@ namespace Wiinject
                 if (match.Success)
                 {
                     int relativeBranch = (int)(functions.First(f => f.Name == match.Groups["function"].Value).EntryPoint - injectionPoint);
-                    sb.AppendLine(BlRegex.Replace(line, $"{match.Groups["mnemonic"].Value} 0x{(long)relativeBranch:X16}"));
+                    sb.AppendLine($"{match.Groups["mnemonic"].Value} 0x{(long)relativeBranch:X16}");
                 }
                 else
                 {
@@ -74,13 +77,55 @@ namespace Wiinject
             }
 
             Assembly = sb.ToString();
-            Data = Assembler.Assemble(Assembly);
+            Data = Assembler.Assemble(LvRegex.Replace(Assembly, "lis 1,0x8000\naddi 1,1,0x0000")); // replace any lv instructions
+        }
+
+        public void ReplaceLv(List<Variable> variables)
+        {
+            if (!LvRegex.IsMatch(Assembly))
+            {
+                return;
+            }
+
+            StringBuilder sb = new();
+            foreach (string line in Assembly.Replace("\r\n", "\n").Split('\n'))
+            {
+                Match match = LvRegex.Match(line);
+                if (match.Success)
+                {
+                    uint variableAddress = variables.First(f => f.Name == match.Groups["variableName"].Value).InsertionPoint;
+                    sb.AppendLine($"lis {match.Groups["register"].Value},0x{variableAddress >> 16:X4}");
+                    sb.AppendLine($"addi {match.Groups["register"].Value},{match.Groups["register"].Value},0x{variableAddress & 0xFFFF:X4}");
+                }
+                else
+                {
+                    sb.AppendLine(line);
+                }
+            }
+
+            Assembly = sb.ToString();
+            Data = Assembler.Assemble(BlRegex.Replace(Assembly, "bl 0x8000000")); // replace any bl function instructions
         }
 
         public enum Mode
         {
             HOOK,
             REPL
+        }
+    }
+
+    public class Variable
+    {
+        public string Name { get; set; }
+        public string Instruction { get; set; }
+        public byte[] Data { get; set; }
+        public uint InsertionPoint { get; set; }
+
+        public Variable(string name, string instruction)
+        {
+            Name = name;
+            Instruction = instruction;
+            Data = Assembler.Assemble(instruction);
         }
     }
 

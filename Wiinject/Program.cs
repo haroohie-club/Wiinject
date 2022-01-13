@@ -18,17 +18,18 @@ namespace Wiinject
             GCC_NOT_FOUND,
             OBJDUMP_NOT_FOUND,
             INJECTION_SITES_TOO_SMALL,
+            DUPLICATE_VARIABLE_NAME,
         }
 
         public static int Main(string[] args)
         {
             string folder = "", outputFolder = ".", patchName = "patch", inputPatch = "", devkitProPath = "C:\\devkitPro";
-            uint[] injectionAddresses = new uint[0], injectionEndAddresses = new uint[0];
+            uint[] injectionAddresses = Array.Empty<uint>(), injectionEndAddresses = Array.Empty<uint>();
             bool consoleOutput = false, emitC = false;
 
             OptionSet options = new()
             {
-                { "f|folder=", "The folder where your .s ASM files live", f => folder = f },
+                { "f|folder=", "The folder where your source files live", f => folder = f },
                 { "i|injection-addresses=", "The addresses to inject function code at, comma delimited. The code at these addresses should be safe to overwrite.",
                     i => injectionAddresses = i.Split(',').Select(a => uint.Parse(a, NumberStyles.HexNumber)).ToArray() },
                 { "e|injection-ends=",
@@ -99,7 +100,9 @@ namespace Wiinject
             }
 
             string[] asmFiles = Directory.GetFiles(folder, "*.s", SearchOption.AllDirectories);
+            Regex varRegex = new(@"\$(?<name>[\w\d_]+): (?<instruction>.+)\r?\n");
             Regex funcRegex = new(@"(?<mode>repl|hook)_(?<address>[A-F\d]{8}):");
+            List<Variable> variables = new();
             List<Routine> routines = new();
             InjectionSite[] injectionSites = new InjectionSite[injectionAddresses.Length];
             for (int i = 0; i < injectionSites.Length; i++)
@@ -156,11 +159,23 @@ namespace Wiinject
                     }
                 }
 
+                string[] variableDeclarations = varRegex.Split(asmFileText);
+                for (int i = 1; i< variableDeclarations.Length; i += 3)
+                {
+                    variables.Add(new(variableDeclarations[i], variableDeclarations[i + 1]));
+                }
+
+                if (variables.Any(v => variables.Count(v2 => v2.Name == v.Name) > 1))
+                {
+                    Console.WriteLine($"Error: Duplicate variables '{variables.First(v => variables.Count(v2 => v2.Name == v.Name) > 1).Name}' detected.");
+                    return (int)WiinjectReturnCode.DUPLICATE_VARIABLE_NAME;
+                }
+
                 string[] assemblyRoutines = funcRegex.Split(asmFileText);
 
                 for (int i = 1; i < assemblyRoutines.Length; i += 3)
                 {
-                    routines.Add(new Routine(assemblyRoutines[i], uint.Parse(assemblyRoutines[i + 1], NumberStyles.HexNumber), assemblyRoutines[i + 2]));
+                    routines.Add(new(assemblyRoutines[i], uint.Parse(assemblyRoutines[i + 1], NumberStyles.HexNumber), assemblyRoutines[i + 2]));
                 }
             }
 
@@ -168,6 +183,28 @@ namespace Wiinject
             {
                 Console.WriteLine($"Error: Max injection length with provided addresses calculated to be {injectionSites.Sum(s => s.Length)} which is less than one instruction.");
                 return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
+            }
+
+            foreach (Variable variable in variables)
+            {
+                bool injected = false;
+                foreach (InjectionSite injectionSite in injectionSites.OrderBy(s => s.Length - s.RoutineMashup.Count))
+                {
+                    if (injectionSite.RoutineMashup.Count + variable.Data.Length > injectionSite.Length)
+                    {
+                        continue;
+                    }
+
+                    variable.InsertionPoint = injectionSite.StartAddress + (uint)injectionSite.RoutineMashup.Count;
+                    injectionSite.RoutineMashup.AddRange(variable.Data);
+                    injected = true;
+                    break;
+                }
+                if (!injected)
+                {
+                    Console.WriteLine($"Error: could not inject variable {variable.Name}; variable longer than any available injection site.");
+                    return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
+                }
             }
 
             foreach (Routine routine in routines)
@@ -189,6 +226,7 @@ namespace Wiinject
 
                         uint branchLocation = injectionSite.StartAddress + (uint)injectionSite.RoutineMashup.Count;
                         routine.SetBranchInstruction(branchLocation);
+                        routine.ReplaceLv(variables);
                         routine.ReplaceBl(resolvedFunctions, branchLocation);
                         injectionSite.RoutineMashup.AddRange(routine.Data);
                         injected = true;
