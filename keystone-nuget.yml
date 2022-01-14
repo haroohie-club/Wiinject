@@ -20,7 +20,7 @@ stages:
     steps:
     - powershell: |
         echo "Downloading"
-        Invoke-WebRequest -Uri https://dockerbootstrap.blob.core.windows.net/dockerbootstrap/vs2013_buildtools.zip -OutFile vs2012_buildtools.zip
+        Invoke-WebRequest -Uri https://dockerbootstrap.blob.core.windows.net/dockerbootstrap/vs2013_buildtools.zip -OutFile vs2013_buildtools.zip
         Expand-Archive vs2013_buildtools.zip
         $env:Path += ";$(Build.SourcesDirectory)\vs2013_buildtools\bin"
         git clone https://github.com/jonko0493/keystone.git
