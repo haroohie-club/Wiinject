@@ -14,11 +14,12 @@ stages:
           imageName: macOS-latest
         Windows:
           imageName: windows-latest
-          demands:
+          winDemands: |
             - VisualStudio
             - VisualStudio_12.0
     pool:
       vmImage: $(imageName)
+      demands: $(winDemands)
     steps:
     - powershell: |
         $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
