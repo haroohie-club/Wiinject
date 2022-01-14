@@ -30,7 +30,7 @@ stages:
         cd keystone
         mkdir build
         cd build
-        %comspec% /k ""$(Build.SourcesDirectory)\vs2013_buildtools\vcvarsall.bat"" amd64
+        %comspec% /k ""$(Build.SourcesDirectory)\vs2013_buildtools\VC\vcvarsall.bat"" amd64
         ..\nmake-dll.bat
 
       displayName: Clone and Build Libraries (Windows)
