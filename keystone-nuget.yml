@@ -14,34 +14,21 @@ stages:
           imageName: macOS-latest
         Windows:
           imageName: windows-latest
-
+          
     pool:
       vmImage: $(imageName)
-      demands: 
-      - VisualStudio
-      - VisualStudio_12.0
     steps:
     - powershell: |
-        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        echo "Downloading"
+        Invoke-WebRequest -Uri https://dockerbootstrap.blob.core.windows.net/dockerbootstrap/vs2012_buildtools.zip -OutFile vs2012_buildtools.zip
+        Expand-Archive vs2012_buildtools.zip
+        $env:Path += ";$(Build.SourcesDirectory)\vs2012_buildtools"
+        git clone https://github.com/jonko0493/keystone.git
+        cd keystone
+        git checkout jonko/NuGetPackaginAzureDevops
+        & $(Build.SourcesDirectory)\vs2012_buildtools\vcvars32.bat
+        & .\nmake-dll.bat
 
-        $vcvarspath = &$vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-        Write-Output "vc tools located at: $vcvarspath"
-
-        cmd.exe /c "call `"$vcvarspath\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
-      
-        Get-Content "$env:temp\vcvars.txt" | Foreach-Object {
-          if ($_ -match "^(.*?)=(.*)$") {
-            Set-Content "env:\$($matches[1])" $matches[2]
-          }
-        }
-    # - powershell: |
-    #     echo "Downloading"
-    #     Invoke-WebRequest -Uri https://dockerbootstrap.blob.core.windows.net/dockerbootstrap/vs2012_buildtools.zip -OutFile vs2012_buildtools.zip
-    #     Expand-Archive vs2012_buildtools.zip
-    #     $env:Path += ";$(Build.SourcesDirectory)\vs2012_buildtools"
-    #     git clone https://github.com/keystone-engine/keystone.git
-    #     cd keystone/bindings/python
-    #     python setup.py build -p win64
       displayName: Clone and Build Libraries (Windows)
     # - powershell: |
     #     Set-PSDebug -Trace 1
