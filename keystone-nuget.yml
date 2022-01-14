@@ -20,14 +20,15 @@ stages:
     steps:
     - powershell: |
         echo "Downloading"
-        Invoke-WebRequest -Uri https://dockerbootstrap.blob.core.windows.net/dockerbootstrap/vs2012_buildtools.zip -OutFile vs2012_buildtools.zip
-        Expand-Archive vs2012_buildtools.zip
-        $env:Path += ";$(Build.SourcesDirectory)\vs2012_buildtools"
+        Invoke-WebRequest -Uri https://dockerbootstrap.blob.core.windows.net/dockerbootstrap/vs2013_buildtools.zip -OutFile vs2013_buildtools.zip
+        Expand-Archive vs2013_buildtools.zip
+        $env:Path += ";$(Build.SourcesDirectory)\vs2013_buildtools"
         git clone https://github.com/jonko0493/keystone.git
         cd keystone
         git checkout jonko/NuGetPackaginAzureDevops
-        & $(Build.SourcesDirectory)\vs2012_buildtools\vcvars32.bat
-        & .\nmake-dll.bat
+        mkdir build
+        cd build
+        & ..\nmake-dll.bat
 
       displayName: Clone and Build Libraries (Windows)
     # - powershell: |
