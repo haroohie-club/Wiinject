@@ -22,10 +22,10 @@ stages:
         echo "Downloading"
         Invoke-WebRequest -Uri https://dockerbootstrap.blob.core.windows.net/dockerbootstrap/vs2013_buildtools.zip -OutFile vs2013_buildtools.zip
         Expand-Archive vs2013_buildtools.zip
-        $env:VS120COMNTOOLS = "$(Build.SourcesDirectory)\vs2013_buildtools"
       displayName: Download VS2013 Build Tools (Windows)
       condition: eq(variables.imageName, 'windows-latest')
     - script: |
+        set VS120COMNTOOLS=$(Build.SourcesDirectory)\vs2013_buildtools\Tools\
         git clone https://github.com/keystone-engine/keystone.git
         cd keystone
         mkdir build
