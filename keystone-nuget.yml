@@ -22,12 +22,13 @@ stages:
         echo "Downloading"
         Invoke-WebRequest -Uri https://dockerbootstrap.blob.core.windows.net/dockerbootstrap/vs2013_buildtools.zip -OutFile vs2013_buildtools.zip
         Expand-Archive vs2013_buildtools.zip
-        $env:Path += ";$(Build.SourcesDirectory)\vs2013_buildtools\bin"
-        git clone https://github.com/jonko0493/keystone.git
+    - script:
+        git clone https://github.com/keystone-engine/keystone.git
         cd keystone
         mkdir build
         cd build
-        & ..\nmake-dll.bat "$(Build.SourcesDirectory)\vs2013_buildtools\bin"
+        %comspec% /k ""$(Build.SourcesDirectory)\vcvarsall.bat"" amd64
+        ..\nmake-dll.bat
 
       displayName: Clone and Build Libraries (Windows)
     # - powershell: |
