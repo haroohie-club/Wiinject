@@ -15,8 +15,8 @@ stages:
         Windows:
           imageName: windows-latest
           demands:
-          - VisualStudio
-          - VisualStudio_12.0
+            - VisualStudio
+            - VisualStudio_12.0
     pool:
       vmImage: $(imageName)
     steps:
