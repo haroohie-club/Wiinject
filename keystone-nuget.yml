@@ -25,10 +25,9 @@ stages:
         $env:Path += ";$(Build.SourcesDirectory)\vs2013_buildtools\bin"
         git clone https://github.com/jonko0493/keystone.git
         cd keystone
-        git checkout jonko/NuGetPackaginAzureDevops
         mkdir build
         cd build
-        & ..\nmake-dll.bat
+        & ..\nmake-dll.bat "$(Build.SourcesDirectory)\vs2013_buildtools\bin"
 
       displayName: Clone and Build Libraries (Windows)
     # - powershell: |
