@@ -25,17 +25,17 @@ stages:
       displayName: Download VS2013 Build Tools (Windows)
       condition: eq(variables.imageName, 'windows-latest')
     - script: |
-        set VS120COMNTOOLS=%BUILD_SOURCESDIRECTORY%\vs2013_buildtools\Tools\
         echo %VS120COMNTOOLS%
-        set VCINSTALLDIR=%BUILD_SOURCESDIRECTORY%\vs2013_buildtools\VC\
         echo %VCINSTALLDIR%
-        echo %VSINSTALLDIR%
         git clone https://github.com/keystone-engine/keystone.git
         cd keystone
         mkdir build
         cd build
         call %BUILD_SOURCESDIRECTORY%\vs2013_buildtools\VC\vcvarsall.bat amd64
         ..\nmake-dll.bat
+      env:
+        VCINSTALLDIR: $(Build.SourcesDirectory)\vs2013_buildtools\VC\
+        VS120COMNTOOLS: $(Build.SourcesDirectory)\vs2013_buildtools\Tools\
 
       displayName: Clone and Build Libraries (Windows)
     # - powershell: |
