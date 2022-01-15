@@ -25,8 +25,8 @@ stages:
       displayName: Download VS2013 Build Tools (Windows)
       condition: eq(variables.imageName, 'windows-latest')
     - script: |
-        set VS120COMNTOOLS=$(Build.SourcesDirectory)\vs2013_buildtools\Tools\
-        set VCINSTALLDIR=$(Build.SourcesDirectory)\vs2013_buildtools\VC\
+        set VS120COMNTOOLS=%BUILD_SOURCESDIRECTORY%\vs2013_buildtools\Tools\
+        set VCINSTALLDIR=%BUILD_SOURCESDIRECTORY%\vs2013_buildtools\VC\
         git clone https://github.com/keystone-engine/keystone.git
         cd keystone
         mkdir build
