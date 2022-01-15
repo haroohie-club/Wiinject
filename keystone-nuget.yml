@@ -26,12 +26,15 @@ stages:
       condition: eq(variables.imageName, 'windows-latest')
     - script: |
         set VS120COMNTOOLS=%BUILD_SOURCESDIRECTORY%\vs2013_buildtools\Tools\
+        echo %VS120COMNTOOLS%
         set VCINSTALLDIR=%BUILD_SOURCESDIRECTORY%\vs2013_buildtools\VC\
+        echo %VCINSTALLDIR%
+        echo %VSINSTALLDIR%
         git clone https://github.com/keystone-engine/keystone.git
         cd keystone
         mkdir build
         cd build
-        %comspec% /k ""$(Build.SourcesDirectory)\vs2013_buildtools\VC\vcvarsall.bat"" amd64
+        %comspec% /k ""%BUILD_SOURCESDIRECTORY%\vs2013_buildtools\VC\vcvarsall.bat"" amd64
         ..\nmake-dll.bat
 
       displayName: Clone and Build Libraries (Windows)
