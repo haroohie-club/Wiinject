@@ -10,7 +10,7 @@ Wiinject relies on the [Keystone Engine](https://www.keystone-engine.org/) to as
 
 ### Prerequisites
 Wiinject requires the following to run:
-* The [.NET 5.0 runtime](https://dotnet.microsoft.com/en-us/download/dotnet/5.0)
+* The [.NET 6.0 runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 * [devkitPro](https://devkitpro.org/wiki/Getting_Started) if compiling C code
 
 ### CLI Options
@@ -117,5 +117,5 @@ hook_8001726C:
 
 ## Source & Building
 
-Wiinject.sln can be opened in Visual Studio 2019 or (presumably) later and built from there. You can also build Wiinject.sln from the command line on any platform that
-supports .NET 5.0 with `dotnet build` in the root directory.
+Wiinject.sln can be opened in Visual Studio 2022 or (presumably) later and built from there. You can also build Wiinject.sln from the command line on any platform that
+supports .NET 6.0 with `dotnet build` in the root directory.
