@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using Wiinject.Interfaces;
 
 namespace Wiinject
 {
     public class DolphinSymbolsMap
     {
-        public static List<CFunction> ParseDolphinSymbolsMap(IEnumerable<string> lines)
+        public static List<ExistingFunction> ParseDolphinSymbolsMap(IEnumerable<string> lines)
         {
-            List<CFunction> functions = new();
+            List<ExistingFunction> functions = new();
 
             foreach (string line in lines)
             {
@@ -16,10 +17,17 @@ namespace Wiinject
                 {
                     continue;
                 }
-                functions.Add(new(components[4], uint.Parse(components[0], NumberStyles.HexNumber)));
+                functions.Add(new() { Name = components[4], EntryPoint = uint.Parse(components[0], NumberStyles.HexNumber) });
             }
 
             return functions;
         }
+    }
+
+    public class ExistingFunction : IFunction
+    {
+        public string Name { get; set; }
+        public uint EntryPoint { get; set; }
+        public bool Existing => true;
     }
 }

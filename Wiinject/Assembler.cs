@@ -1,9 +1,11 @@
 ﻿using Keystone;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Wiinject.Interfaces;
 
 namespace Wiinject
 {
@@ -44,17 +46,42 @@ namespace Wiinject
             InsertionPoint = insertionPoint;
             string blReplacedAssembly = BlRegex.Replace(assembly, "bl 0x800000"); // temporarily replace bls for assembly; will be resolved in later steps
             string lvReplacedAssembly = LvRegex.Replace(blReplacedAssembly, "lis 1,0x8000\naddi 1,1,0x0000"); // also temporarily replace the variable refs
-            Data = Assembler.Assemble(lvReplacedAssembly);
+            if (RoutineMode == Mode.HEX)
+            {
+                string hex = Regex.Replace(assembly, @"\s", "");
+                if (hex.Length % 2 != 0)
+                {
+                    Console.WriteLine($"Error: Hex data for  HEX_{InsertionPoint:X8} does not have an even number of characters.");
+                    return;
+                }
+                List<byte> data = new();
+                for (int i = 0; i < hex.Length; i += 2)
+                {
+                    data.Add(byte.Parse(hex[i..(i + 2)], NumberStyles.HexNumber));
+                }
+                Data = data.ToArray();
+            }
+            else
+            {
+                Data = Assembler.Assemble(lvReplacedAssembly);
+            }
         }
 
         public void SetBranchInstruction(uint branchTo)
         {
-            int relativeBranch = (int)(branchTo - InsertionPoint);
-            string instruction = $"bl 0x{(long)relativeBranch:X16}";
-            BranchInstruction = Assembler.Assemble(instruction);
+            if (RoutineMode == Mode.HOOK)
+            {
+                int relativeBranch = (int)(branchTo - InsertionPoint);
+                string instruction = $"bl 0x{(long)relativeBranch:X16}";
+                BranchInstruction = Assembler.Assemble(instruction);
+            }
+            else if (RoutineMode == Mode.REF)
+            {
+                BranchInstruction = BitConverter.GetBytes(branchTo).Reverse().ToArray();
+            }
         }
 
-        public void ReplaceBl(List<CFunction> functions, uint injectionPoint)
+        public void ReplaceBl(List<IFunction> functions, uint injectionPoint)
         {
             if (!BlRegex.IsMatch(Assembly))
             {
@@ -110,7 +137,9 @@ namespace Wiinject
         public enum Mode
         {
             HOOK,
-            REPL
+            REPL,
+            REF,
+            HEX,
         }
     }
 

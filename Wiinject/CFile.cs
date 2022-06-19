@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Wiinject.Interfaces;
 
 namespace Wiinject
 {
@@ -70,7 +71,7 @@ namespace Wiinject
         }
     }
 
-    public class CFunction
+    public class CFunction : IFunction
     {
         private static readonly Regex _DataRegex =
             new(@"(?<assembledInstruction>[\dA-Fa-f]{2} [\dA-Fa-f]{2} [\dA-Fa-f]{2} [\dA-Fa-f]{2})[\t ]+(?<disassembledInstruction>\w+(?:[\t ]+[a-fr\d,()-]+)?)(?: <(?<branchRef>[\w_-]+)>)?");
@@ -80,6 +81,7 @@ namespace Wiinject
         public byte[] Data { get; set; }
         public List<Instruction> Instructions { get; set; }
         public HashSet<CFunction> FunctionRefs { get; set; } = new();
+        public bool Existing => false;
 
         private string _data;
 

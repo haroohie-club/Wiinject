@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using Wiinject.Interfaces;
 
 namespace Wiinject
 {
@@ -102,7 +103,7 @@ namespace Wiinject
 
             string[] asmFiles = Directory.GetFiles(folder, "*.s", SearchOption.AllDirectories);
             Regex varRegex = new(@"\$(?<name>[\w\d_]+): (?<instruction>.+)\r?\n");
-            Regex funcRegex = new(@"(?<mode>repl|hook)_(?<address>[A-F\d]{8}):");
+            Regex funcRegex = new(@"(?<mode>repl|hook|ref|hex)_(?<address>[A-F\d]{8}):");
             List<Variable> variables = new();
             List<Routine> routines = new();
             InjectionSite[] injectionSites = new InjectionSite[injectionAddresses.Length];
@@ -111,7 +112,7 @@ namespace Wiinject
                 injectionSites[i] = new() { StartAddress = injectionAddresses[i], EndAddress = injectionEndAddresses[i] };
             }
 
-            List<CFunction> resolvedFunctions = new();
+            List<IFunction> resolvedFunctions = new();
             if (!string.IsNullOrEmpty(symbolsMap))
             {
                 resolvedFunctions.AddRange(DolphinSymbolsMap.ParseDolphinSymbolsMap(File.ReadAllLines(symbolsMap)));
@@ -130,37 +131,41 @@ namespace Wiinject
                         CFunction function = cFile.Functions.First(f => f.Name == bl.Groups["function"].Value);
                         if (!resolvedFunctions.Any(f => f.Name == function.Name))
                         {
-                            function.FunctionsToResolve(resolvedFunctions);
+                            resolvedFunctions.AddRange(function.FunctionsToResolve(resolvedFunctions.Where(f => !f.Existing).Select(f => (CFunction)f).ToList()));
                         }
                     }
 
-                    foreach (CFunction function in resolvedFunctions)
+                    foreach (IFunction iFunction in resolvedFunctions)
                     {
-                        bool injected = false;
-                        foreach (InjectionSite injectionSite in injectionSites.OrderBy(s => s.Length - s.RoutineMashup.Count))
+                        if (!iFunction.Existing)
                         {
-                            if (injectionSite.RoutineMashup.Count + function.Instructions.Count * 4 > injectionSite.Length)
+                            bool injected = false;
+                            CFunction function = (CFunction)iFunction;
+                            foreach (InjectionSite injectionSite in injectionSites.OrderBy(s => s.Length - s.RoutineMashup.Count))
                             {
-                                continue;
-                            }
+                                if (injectionSite.RoutineMashup.Count + function.Instructions.Count * 4 > injectionSite.Length)
+                                {
+                                    continue;
+                                }
 
-                            function.EntryPoint = injectionSite.CurrentAddress;
-                            function.ResolveBranches();
-                            function.SetDataFromInstructions();
-                            injectionSite.RoutineMashup.AddRange(function.Data);
-                            injected = true;
-                            break;
-                        }
-                        if (!injected)
-                        {
-                            Console.WriteLine($"Error: could not inject function {function.Name}; function longer than any available injection site.");
-                            return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
-                        }
-                        if (emitC)
-                        {
-                            Console.WriteLine($"== {function.Name} ==\n");
-                            Console.WriteLine(string.Join('\n', function.Instructions.Select(i => i.Text)));
-                            Console.WriteLine("\n");
+                                function.EntryPoint = injectionSite.CurrentAddress;
+                                function.ResolveBranches();
+                                function.SetDataFromInstructions();
+                                injectionSite.RoutineMashup.AddRange(function.Data);
+                                injected = true;
+                                break;
+                            }
+                            if (!injected)
+                            {
+                                Console.WriteLine($"Error: could not inject function {function.Name}; function longer than any available injection site.");
+                                return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
+                            }
+                            if (emitC)
+                            {
+                                Console.WriteLine($"== {function.Name} ==\n");
+                                Console.WriteLine(string.Join('\n', function.Instructions.Select(i => i.Text)));
+                                Console.WriteLine("\n");
+                            }
                         }
                     }
                 }
@@ -215,7 +220,11 @@ namespace Wiinject
 
             foreach (Routine routine in routines)
             {
-                if (routine.RoutineMode == Routine.Mode.REPL)
+                if (routine.RoutineMode == Routine.Mode.HEX)
+                {
+                    riivolution.AddMemoryPatch(routine.InsertionPoint, routine.Data);
+                }
+                else if (routine.RoutineMode == Routine.Mode.REPL)
                 {
                     routine.ReplaceBl(resolvedFunctions, routine.InsertionPoint);
                     riivolution.AddMemoryPatch(routine.InsertionPoint, routine.Data);

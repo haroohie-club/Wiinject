@@ -15,6 +15,7 @@ Wiinject requires the following to run:
 
 ### CLI Options
 * `-f|--folder` &ndash; The folder where your source files live
+* `-m|--dolphin-map|--map|--symbols` &ndash; A Dolphin symbols map for any built-in functions you want to reference by name
 * `-i|--injection-addresses` &ndash; The addresses to inject function code at, comma delimited. The code at these addresses should be safe to overwrite.
 * `-e|--injection-ends` &ndash; The addresses at which the above injection sites end (are no longer safe to overwrite), comma delimited.
                                 If the code is unable to fit in any of these injection sites, an error will be thrown.
@@ -49,6 +50,8 @@ hook_80017254:
 repl_80017260:
     mr 5,25
     li 6,7
+
+
 ```
 
 The `hook`s indicate which instructions to replace with a branch instruction to the function provided. The `repl` indicates a location to start overwriting
