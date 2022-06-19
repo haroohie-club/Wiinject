@@ -51,11 +51,14 @@ repl_80017260:
     mr 5,25
     li 6,7
 
-
+ref_801BBB38:
+    li 6,7
+    blr
 ```
 
 The `hook`s indicate which instructions to replace with a branch instruction to the function provided. The `repl` indicates a location to start overwriting
-instructions directly with the instructions provided.
+instructions directly with the instructions provided. The `ref` indicates a location to write a reference to the function provided (useful for hooking into functions
+that use `bctrl`, etc.).
 
 ### Writing C
 
@@ -111,12 +114,35 @@ hook_8001726C:
     blr
 ```
 
+### Using Symbols
+You can provide Wiinject with a Dolphin symbols map and use that to reference functions existing in the ASM in the same way you would reference C functions.
+
+Map file:
+```
+.text section layout
+80004000 00000050 80004000 0 memcpy
+```
+
+Assembly:
+
+```assembly
+hook_8001726C:
+    stwu 1,-24(1)
+    mflr 0
+    stw 0,20(1)
+    bl =memcpy
+    lwz 0,20(1)
+    mtlr 0
+    addi 1,24
+    blr
+```
+
 ## Limitations
 
-* Wiinject only supports the `bl` command in the context of C functions, i.e. `bl =hook_assemblyfunc` will not currently work.
+* Wiinject only supports the `bl` command for C functions or functions defined in your Dolphin symbols map; functions defined in assembly cannot currently be branched to.
 * Multi-file C and headers and such are not supported. Define everything within a single file.
 * Wiinject currently only supports base patches with a single `<patch>` element.
-* The [paired single operators](https://wiibrew.org/wiki/Paired_single) are not available
+* The [paired single operators](https://wiibrew.org/wiki/Paired_single) are not available.
 
 ## Source & Building
 
