@@ -23,13 +23,14 @@ namespace Wiinject
 
         public static int Main(string[] args)
         {
-            string folder = "", outputFolder = ".", patchName = "patch", inputPatch = "", devkitProPath = "C:\\devkitPro";
+            string folder = string.Empty, outputFolder = ".", patchName = "patch", inputPatch = string.Empty, devkitProPath = "C:\\devkitPro", symbolsMap = string.Empty;
             uint[] injectionAddresses = Array.Empty<uint>(), injectionEndAddresses = Array.Empty<uint>();
             bool consoleOutput = false, emitC = false;
 
             OptionSet options = new()
             {
                 { "f|folder=", "The folder where your source files live", f => folder = f },
+                { "m|dolphin-map|map|symbols=", "A Dolphin symbols .map file containing any functions you wish to reference", m => symbolsMap = m },
                 { "i|injection-addresses=", "The addresses to inject function code at, comma delimited. The code at these addresses should be safe to overwrite.",
                     i => injectionAddresses = i.Split(',').Select(a => uint.Parse(a, NumberStyles.HexNumber)).ToArray() },
                 { "e|injection-ends=",
@@ -111,6 +112,11 @@ namespace Wiinject
             }
 
             List<CFunction> resolvedFunctions = new();
+            if (!string.IsNullOrEmpty(symbolsMap))
+            {
+                resolvedFunctions.AddRange(DolphinSymbolsMap.ParseDolphinSymbolsMap(File.ReadAllLines(symbolsMap)));
+            }
+
             foreach (string asmFile in asmFiles)
             {
                 string asmFileText = File.ReadAllText(asmFile);

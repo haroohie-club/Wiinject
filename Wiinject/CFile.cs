@@ -90,6 +90,12 @@ namespace Wiinject
             Instructions = _DataRegex.Matches(_data).Select(d => new Instruction(d.Groups["disassembledInstruction"].Value, d.Groups["assembledInstruction"].Value, d.Groups["branchRef"].Value)).ToList();
         }
 
+        public CFunction(string name, uint entryPoint)
+        {
+            Name = name;
+            EntryPoint = entryPoint;
+        }
+
         public void ResolveFunctionRefs(IEnumerable<CFunction> cFunctions)
         {
             foreach (Instruction instruction in Instructions.Where(i => i.IsBranchLink))
