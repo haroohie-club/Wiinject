@@ -12,7 +12,7 @@ namespace Wiinject
             uint[] injectionAddresses,
             uint[] injectionEndAddresses,
             Dictionary<string, (string, string)[]> asmFiles,
-            (string fileName, string fileContents)[] cFilesArray,
+            string[] cFilesArray,
             string inputPatch,
             string[] symbolsMap,
             string gccPath,
@@ -47,7 +47,7 @@ namespace Wiinject
                     throw new ObjdumpNotFoundException(objdumpPath);
                 }
 
-                cFiles = cFilesArray.Select(f => new CFile(f.fileName, f.fileContents)).ToList();
+                cFiles = cFilesArray.Select(f => new CFile(f)).ToList();
                 foreach (CFile cFile in cFiles)
                 {
                     cFile.Compile(gccPath, objdumpPath);

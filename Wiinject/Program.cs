@@ -58,7 +58,7 @@ namespace Wiinject
             {
                 asmFiles.Add(Path.GetFileName(directory), Directory.GetFiles(directory, "*.s", SearchOption.AllDirectories).Select(f => (Path.GetFileNameWithoutExtension(f), File.ReadAllText(f))).ToArray());
             }
-            (string, string)[] cFiles = Directory.GetFiles(folder, "*.c", SearchOption.AllDirectories).Select(f => (Path.GetFileNameWithoutExtension(f), File.ReadAllText(f))).ToArray();
+            string[] cFiles = Directory.GetFiles(folder, "*.c", SearchOption.AllDirectories);
 
             string gccExe = "powerpc-eabi-gcc";
             string objdumpExe = "powerpc-eabi-objdump";

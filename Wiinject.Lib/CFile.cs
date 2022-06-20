@@ -12,26 +12,21 @@ namespace Wiinject
 {
     public class CFile
     {
-        public string Name { get; set; }
-        public string Text { get; set; }
-        public string FilePath => Path.Combine(Path.GetTempPath(), $"{Name}.c");
+        public string FilePath { get; set; }
+        public string Name => Path.GetFileNameWithoutExtension(FilePath);
         public string OutPath => Path.Combine(Path.GetTempPath(), $"{Name}.o");
         public List<CFunction> Functions { get; set; } = new();
         private StringBuilder _objdumpOutputReader;
 
         private static readonly Regex _FuncRegex = new(@"<(?<functionName>[\w\d_-]+)>:");
 
-        public CFile(string fileName, string fileContents)
+        public CFile(string filePath)
         {
-            Name = fileName;
-            Text = fileContents;
+            FilePath = filePath;
         }
 
         public void Compile(string gccPath, string objdumpPath)
         {
-            // create the temp C file
-            File.WriteAllText(FilePath, Text);
-
             // compile the C file
             using Process gccProcess = Process.Start(gccPath, $"\"{FilePath}\" -o \"{OutPath}\"");
             gccProcess.WaitForExit();
@@ -63,7 +58,6 @@ namespace Wiinject
                 function.ResolveFunctionRefs(Functions);
             }
 
-            File.Delete(FilePath);
             File.Delete(OutPath);
         }
 
