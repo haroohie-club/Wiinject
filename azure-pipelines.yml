@@ -18,11 +18,11 @@ jobs:
   - checkout: self
     clean: true
   - task: UseDotNet@2
-  displayName: Install .NET
-  inputs:
-    packageType: sdk
-    version: 6.0.301
-    installationPath: $(Agent.ToolsDirectory)/dotnet
+    displayName: Install .NET
+    inputs:
+      packageType: sdk
+      version: 6.0.301
+      installationPath: $(Agent.ToolsDirectory)/dotnet
   - task: DotNetCoreCLI@2
     inputs:
       command: 'publish'
