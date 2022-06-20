@@ -1,3 +1,6 @@
+$variable: .int 0
+$array: .skip 16
+
 repl_8006FCA4:
     mr 6,28
     mr 7,27
@@ -13,6 +16,8 @@ repl_8006FBB0:
     mr 8,28
 
 hook_80017250:
+    lv 2,$variable
+    lv 3,$array
     add 5,5,0
     mr 26,3
     blr
@@ -34,4 +39,8 @@ hook_8001726C:
     addi 11,31,24
     lwz 31,-4(11)
     mr 1,11
+    blr
+
+ref_801A8000:
+    mr 8,28
     blr

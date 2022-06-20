@@ -1,4 +1,5 @@
 trigger: none
+pr: none
 
 stages:
 - stage:
@@ -14,16 +15,41 @@ stages:
           imageName: macOS-latest
         Windows:
           imageName: windows-latest
+          
     pool:
       vmImage: $(imageName)
     steps:
     - powershell: |
+        echo "Downloading"
+        Invoke-WebRequest -Uri https://dockerbootstrap.blob.core.windows.net/dockerbootstrap/vs2013_buildtools.zip -OutFile vs2013_buildtools.zip
+        Expand-Archive vs2013_buildtools.zip
+      displayName: Download VS2013 Build Tools (Windows)
+      condition: eq(variables.imageName, 'windows-latest')
+    - script: |
+        echo %VS120COMNTOOLS%
+        echo %VCINSTALLDIR%
         git clone https://github.com/keystone-engine/keystone.git
         cd keystone
         mkdir build
         cd build
-        cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON -DLLVM_TARGETS_TO_BUILD="all" -G "NMake Makefiles" ..
-        make
+        call %BUILD_SOURCESDIRECTORY%\vs2013_buildtools\VC\vcvarsall.bat amd64
+        ..\nmake-dll.bat
+      env:
+        VCINSTALLDIR: $(Build.SourcesDirectory)\vs2013_buildtools\VC\
+        VS120COMNTOOLS: $(Build.SourcesDirectory)\vs2013_buildtools\Tools\
+
+      displayName: Clone and Build Libraries (Windows)
+    # - powershell: |
+    #     Set-PSDebug -Trace 1
+    #     mkdir $(Build.SourcesDirectory)\keystone\build\llvm\lib\
+    #     Invoke-WebRequest -Uri https://github.com/keystone-engine/keystone/releases/download/0.9.2/keystone-0.9.2-win32.zip -OutFile keystone-0.9.2-win32.zip
+    #     Expand-Archive keystone-0.9.2-win32.zip
+    #     Copy-Item keystone-0.9.2-win32\keystone-0.9.2-win32\keystone.dll $(Build.SourcesDirectory)\keystone\build\llvm\lib\keystone-win32.dll
+    #     Invoke-WebRequest -Uri https://github.com/keystone-engine/keystone/releases/download/0.9.2/keystone-0.9.2-win64.zip -OutFile keystone-0.9.2-win64.zip
+    #     Expand-Archive keystone-0.9.2-win64.zip
+    #     Copy-Item keystone-0.9.2-win64\keystone-0.9.2-win64\keystone.dll $(Build.SourcesDirectory)\keystone\build\llvm\lib\keystone-win64.dll
+    #   displayName: Download Libraries (Windows)
+      condition: eq(variables.imageName, 'windows-latest')
     - script: |
         git clone https://github.com/keystone-engine/keystone.git
         cd keystone
@@ -39,10 +65,13 @@ stages:
         ArtifactName: 'lib'
         publishLocation: 'Container'
       displayName: Publish Libraries
+      condition: always()
 - stage:
   displayName: NuGet Packaging
   jobs:
   - job:
+    pool:
+      vmImage: ubuntu-latest
     displayName: Package NuGet package
     steps:
     - task: DownloadPipelineArtifact@2
@@ -52,13 +81,23 @@ stages:
         patterns: | 
           **/*.dll
           **/*.dylib
-          **/*.so.0'
-        path: $(Build.SourcesDirectory)
+          **/*.so.0
+        path: $(Build.SourcesDirectory)/keystone-nuget/
       displayName: Download dlls
+    - script: |
+        mkdir $(Build.SourcesDirectory)/keystone-nuget/build
+        cd $(Build.SourcesDirectory)/keystone-nuget/
+        mkdir build/win-x64/
+        mkdir build/win-x86/
+        mkdir build/osx-x64/
+        mkdir build/linux-x64/
+        mv keystone-win32.dll build/win-x86/keystone.dll
+        mv keystone-win64.dll build/win-x64/keystone.dll
+        mv libkeystone.0.dylib build/osx-x64/keystone.dylib
+        mv libkeystone.so.0 build/linux-x64/keystone.so
     - task: PublishBuildArtifacts@1
       inputs:
-        PathToPublish: '$(Build.SourcesDirectory)'
+        PathToPublish: '$(Build.SourcesDirectory)/keystone-nuget'
         ArtifactName: 'keystone.nupkg'
         publishLocation: 'Container'
       displayName: Publish Nupkg
-        

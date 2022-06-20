@@ -1,19 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Authors>Jonko</Authors>
     <Description>Wiinject is a tool for injecting ASM hacks into Wii games using Riivolution memory patches.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/jonko0493/Wiinject</RepositoryUrl>
     <PackageProjectUrl>https://github.com/jonko0493/Wiinject</PackageProjectUrl>
     <RepositoryType>GitHub</RepositoryType>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Keystone.Net" Version="0.9.4" />
     <PackageReference Include="Mono.Options" Version="6.12.0.148" />
   </ItemGroup>
 
@@ -22,6 +21,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Wiinject.Lib\Wiinject.Lib.csproj" />
   </ItemGroup>
 
 </Project>

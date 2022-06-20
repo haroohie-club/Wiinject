@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Wiinject.Interfaces;
 
 namespace Wiinject
 {
@@ -12,7 +14,7 @@ namespace Wiinject
     {
         public string FilePath { get; set; }
         public string Name => Path.GetFileNameWithoutExtension(FilePath);
-        public string OutPath => Path.Combine(Path.GetDirectoryName(FilePath), $"{Name}.o");
+        public string OutPath => Path.Combine(Path.GetTempPath(), $"{Name}.o");
         public List<CFunction> Functions { get; set; } = new();
         private StringBuilder _objdumpOutputReader;
 
@@ -70,7 +72,7 @@ namespace Wiinject
         }
     }
 
-    public class CFunction
+    public class CFunction : IFunction
     {
         private static readonly Regex _DataRegex =
             new(@"(?<assembledInstruction>[\dA-Fa-f]{2} [\dA-Fa-f]{2} [\dA-Fa-f]{2} [\dA-Fa-f]{2})[\t ]+(?<disassembledInstruction>\w+(?:[\t ]+[a-fr\d,()-]+)?)(?: <(?<branchRef>[\w_-]+)>)?");
@@ -80,6 +82,7 @@ namespace Wiinject
         public byte[] Data { get; set; }
         public List<Instruction> Instructions { get; set; }
         public HashSet<CFunction> FunctionRefs { get; set; } = new();
+        public bool Existing => false;
 
         private string _data;
 
@@ -87,7 +90,18 @@ namespace Wiinject
         {
             Name = name;
             _data = data;
+            Data = Array.Empty<byte>();
             Instructions = _DataRegex.Matches(_data).Select(d => new Instruction(d.Groups["disassembledInstruction"].Value, d.Groups["assembledInstruction"].Value, d.Groups["branchRef"].Value)).ToList();
+        }
+
+        public CFunction(string name, uint entryPoint)
+        {
+            Name = name;
+            EntryPoint = entryPoint;
+            Instructions = new();
+            FunctionRefs = new();
+            Data = Array.Empty<byte>();
+            _data = string.Empty;
         }
 
         public void ResolveFunctionRefs(IEnumerable<CFunction> cFunctions)
@@ -157,6 +171,8 @@ namespace Wiinject
 
         public Instruction(string text)
         {
+            Data = Array.Empty<byte>();
+            BranchRef = string.Empty;
             Text = text;
             Assemble();
         }

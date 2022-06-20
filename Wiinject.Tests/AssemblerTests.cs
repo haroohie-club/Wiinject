@@ -1,6 +1,7 @@
 using Keystone;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Wiinject.Interfaces;
 
 namespace Wiinject.Tests
 {
@@ -40,8 +41,8 @@ namespace Wiinject.Tests
         public void RoutineReplaceBlTest(string direction, uint routineInsertionPoint, uint functionInjectionPoint, uint routineInjectionPoint, string hexResult)
         {
             Routine routine = new("hook", routineInsertionPoint, TestHelpers.TestFunctionCallAsm);
-            List<CFunction> functions = new();
-            functions.Add(new("test_function", TestHelpers.TestFunctionC) { EntryPoint = functionInjectionPoint });
+            List<IFunction> functions = new();
+            functions.Add(new CFunction("test_function", TestHelpers.TestFunctionC) { EntryPoint = functionInjectionPoint });
 
             routine.ReplaceBl(functions, routineInjectionPoint);
 
