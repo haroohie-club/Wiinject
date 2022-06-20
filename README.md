@@ -97,6 +97,22 @@ The `hook`s indicate which instructions to replace with a branch instruction to 
 instructions directly with the instructions provided. The `ref` indicates a location to write a reference to the function provided (useful for hooking into functions
 that use `bctrl`, etc.).
 
+### Using Variables in ASM
+Wiinject allows for a special notation to store and interact with variables. Variables can be defined anywhere in an ASM file with `$variable:`, e.g. `$array: .skip 16`.
+You can then load that variable into memory with the `lv` command. `lv` is resolved to an `lis` followed by an `addi` in the assembling process.
+
+Example:
+
+```assembly
+$variable: .int 0
+$array: .skip 16
+
+hook_80017250:
+    lv 2,$variable
+    lv 3,$array
+    blr
+```
+
 ### Writing C
 
 For each ASM file, you may also provide a companion C file to compile and inject methods which may then be called from the ASM. In order to use this functionality, you must
