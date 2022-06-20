@@ -18,7 +18,7 @@ namespace Wiinject.Tests
             });
 
             Assert.AreEqual((int)Program.WiinjectReturnCode.OK, returnCode);
-            Assert.AreEqual(File.ReadAllText(Path.Combine(".", "out-cases", "Riivolution", "test-patch.xml")), @"<wiidisc>
+            Assert.AreEqual(@"<wiidisc>
   <patch>
     <memory offset=""0x8006FCA4"" value=""7F86E3787F67DB78"" />
     <memory offset=""0x8006FCB0"" value=""7F28CB78"" />
@@ -29,13 +29,15 @@ namespace Wiinject.Tests
     <memory offset=""0x80004000"" valuefile=""/test-patch/patch0.bin"" />
     <memory offset=""0x80014000"" valuefile=""/test-patch/patch1.bin"" />
   </patch>
-</wiidisc>");
+</wiidisc>",
+            File.ReadAllText(Path.Combine(".", "out-cases", "Riivolution", "test-patch.xml")));
         }
 
         [Test]
         public void BadAsmTest()
         {
-            Keystone.KeystoneException exception = Assert.Throws<Keystone.KeystoneException>(delegate {
+            Keystone.KeystoneException exception = Assert.Throws<Keystone.KeystoneException>(delegate
+            {
                 Program.Main(new string[]
                 {
                     "-f", "test-cases/bad",
@@ -61,7 +63,7 @@ namespace Wiinject.Tests
                 "-n", "test-patch"
             });
 
-            Assert.AreEqual((int)Program.WiinjectReturnCode.ADDRESS_COUNT_MISMATCH, returnCode);
+            Assert.AreEqual((int)Program.WiinjectReturnCode.ERROR, returnCode);
         }
 
         [Test]
@@ -77,7 +79,7 @@ namespace Wiinject.Tests
                 "-d", "devkitpro-not-here",
             });
 
-            Assert.AreEqual((int)Program.WiinjectReturnCode.GCC_NOT_FOUND, returnCode);
+            Assert.AreEqual((int)Program.WiinjectReturnCode.ERROR, returnCode);
         }
 
         [Test]
@@ -92,7 +94,7 @@ namespace Wiinject.Tests
                 "-n", "test-patch"
             });
 
-            Assert.AreEqual((int)Program.WiinjectReturnCode.INJECTION_SITES_TOO_SMALL, returnCode);
+            Assert.AreEqual((int)Program.WiinjectReturnCode.ERROR, returnCode);
         }
 
         [Test]
@@ -107,7 +109,7 @@ namespace Wiinject.Tests
                 "-n", "test-patch"
             });
 
-            Assert.AreEqual((int)Program.WiinjectReturnCode.DUPLICATE_VARIABLE_NAME, returnCode);
+            Assert.AreEqual((int)Program.WiinjectReturnCode.ERROR, returnCode);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Wiinject
 
     public class ExistingFunction : IFunction
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public uint EntryPoint { get; set; }
         public bool Existing => true;
     }

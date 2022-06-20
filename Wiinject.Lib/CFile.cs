@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -11,21 +12,26 @@ namespace Wiinject
 {
     public class CFile
     {
-        public string FilePath { get; set; }
-        public string Name => Path.GetFileNameWithoutExtension(FilePath);
-        public string OutPath => Path.Combine(Path.GetDirectoryName(FilePath), $"{Name}.o");
+        public string Name { get; set; }
+        public string Text { get; set; }
+        public string FilePath => Path.Combine(Path.GetTempPath(), $"{Name}.c");
+        public string OutPath => Path.Combine(Path.GetTempPath(), $"{Name}.o");
         public List<CFunction> Functions { get; set; } = new();
         private StringBuilder _objdumpOutputReader;
 
         private static readonly Regex _FuncRegex = new(@"<(?<functionName>[\w\d_-]+)>:");
 
-        public CFile(string filePath)
+        public CFile(string fileName, string fileContents)
         {
-            FilePath = filePath;
+            Name = fileName;
+            Text = fileContents;
         }
 
         public void Compile(string gccPath, string objdumpPath)
         {
+            // create the temp C file
+            File.WriteAllText(FilePath, Text);
+
             // compile the C file
             using Process gccProcess = Process.Start(gccPath, $"\"{FilePath}\" -o \"{OutPath}\"");
             gccProcess.WaitForExit();
@@ -57,6 +63,7 @@ namespace Wiinject
                 function.ResolveFunctionRefs(Functions);
             }
 
+            File.Delete(FilePath);
             File.Delete(OutPath);
         }
 
@@ -89,6 +96,7 @@ namespace Wiinject
         {
             Name = name;
             _data = data;
+            Data = Array.Empty<byte>();
             Instructions = _DataRegex.Matches(_data).Select(d => new Instruction(d.Groups["disassembledInstruction"].Value, d.Groups["assembledInstruction"].Value, d.Groups["branchRef"].Value)).ToList();
         }
 
@@ -96,6 +104,10 @@ namespace Wiinject
         {
             Name = name;
             EntryPoint = entryPoint;
+            Instructions = new();
+            FunctionRefs = new();
+            Data = Array.Empty<byte>();
+            _data = string.Empty;
         }
 
         public void ResolveFunctionRefs(IEnumerable<CFunction> cFunctions)
@@ -165,6 +177,8 @@ namespace Wiinject
 
         public Instruction(string text)
         {
+            Data = Array.Empty<byte>();
+            BranchRef = string.Empty;
             Text = text;
             Assemble();
         }

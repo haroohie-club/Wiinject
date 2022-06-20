@@ -15,11 +15,7 @@ namespace Wiinject
         public enum WiinjectReturnCode
         {
             OK,
-            ADDRESS_COUNT_MISMATCH,
-            GCC_NOT_FOUND,
-            OBJDUMP_NOT_FOUND,
-            INJECTION_SITES_TOO_SMALL,
-            DUPLICATE_VARIABLE_NAME,
+            ERROR,
         }
 
         public static int Main(string[] args)
@@ -54,226 +50,52 @@ namespace Wiinject
                 return (int)WiinjectReturnCode.OK;
             }
 
-            if (injectionAddresses.Length != injectionEndAddresses.Length)
-            {
-                Console.WriteLine("Error: You must provide the same number of injection addresses and end addresses");
-                return (int)WiinjectReturnCode.ADDRESS_COUNT_MISMATCH;
-            }
-
-            Riivolution riivolution;
-            if (!string.IsNullOrEmpty(inputPatch))
-            {
-                riivolution = new(inputPatch);
-            }
-            else
-            {
-                riivolution = new();
-            }
-
-            string[] cFilePaths = Directory.GetFiles(folder, "*.c", SearchOption.AllDirectories);
-            List<CFile> cFiles = new();
-            if (cFilePaths.Length > 0)
-            {
-                string gccExe = "powerpc-eabi-gcc";
-                string objdumpExe = "powerpc-eabi-objdump";
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    gccExe += ".exe";
-                    objdumpExe += ".exe";
-                }
-                string gccPath = Path.Combine(devkitProPath, "devkitPPC", "bin", gccExe);
-                string objdumpPath = Path.Combine(devkitProPath, "devkitPPC", "bin", objdumpExe);
-                if (!File.Exists(gccPath))
-                {
-                    Console.WriteLine($"Error: {gccExe} not detected on provided devkitProPath '{gccPath}'");
-                    return (int)WiinjectReturnCode.GCC_NOT_FOUND;
-                }
-                if (!File.Exists(objdumpPath))
-                {
-                    Console.WriteLine($"Error: {objdumpExe} not detected on provided devkitProPath '{objdumpPath}'");
-                    return (int)WiinjectReturnCode.OBJDUMP_NOT_FOUND;
-                }
-
-                cFiles = cFilePaths.Select(f => new CFile(f)).ToList();
-                foreach (CFile cFile in cFiles)
-                {
-                    cFile.Compile(gccPath, objdumpPath);
-                }
-            }
-
-            string[] asmFiles = Directory.GetFiles(folder, "*.s", SearchOption.AllDirectories);
-            Regex varRegex = new(@"\$(?<name>[\w\d_]+): (?<instruction>.+)\r?\n");
-            Regex funcRegex = new(@"(?<mode>repl|hook|ref|hex)_(?<address>[A-F\d]{8}):");
-            List<Variable> variables = new();
-            List<Routine> routines = new();
-            InjectionSite[] injectionSites = new InjectionSite[injectionAddresses.Length];
-            for (int i = 0; i < injectionSites.Length; i++)
-            {
-                injectionSites[i] = new() { StartAddress = injectionAddresses[i], EndAddress = injectionEndAddresses[i] };
-            }
-
-            List<IFunction> resolvedFunctions = new();
-            if (!string.IsNullOrEmpty(symbolsMap))
-            {
-                resolvedFunctions.AddRange(DolphinSymbolsMap.ParseDolphinSymbolsMap(File.ReadAllLines(symbolsMap)));
-            }
-
-            foreach (string asmFile in asmFiles)
-            {
-                string asmFileText = File.ReadAllText(asmFile);
-
-                if (cFiles.Any(c => c.Name == Path.GetFileNameWithoutExtension(asmFile)))
-                {
-                    CFile cFile = cFiles.First(c => c.Name == Path.GetFileNameWithoutExtension(asmFile));
-
-                    foreach (Match bl in Routine.BlRegex.Matches(asmFileText))
-                    {
-                        CFunction function = cFile.Functions.First(f => f.Name == bl.Groups["function"].Value);
-                        if (!resolvedFunctions.Any(f => f.Name == function.Name))
-                        {
-                            resolvedFunctions.AddRange(function.FunctionsToResolve(resolvedFunctions.Where(f => !f.Existing).Select(f => (CFunction)f).ToList()));
-                        }
-                    }
-
-                    foreach (IFunction iFunction in resolvedFunctions)
-                    {
-                        if (!iFunction.Existing)
-                        {
-                            bool injected = false;
-                            CFunction function = (CFunction)iFunction;
-                            foreach (InjectionSite injectionSite in injectionSites.OrderBy(s => s.Length - s.RoutineMashup.Count))
-                            {
-                                if (injectionSite.RoutineMashup.Count + function.Instructions.Count * 4 > injectionSite.Length)
-                                {
-                                    continue;
-                                }
-
-                                function.EntryPoint = injectionSite.CurrentAddress;
-                                function.ResolveBranches();
-                                function.SetDataFromInstructions();
-                                injectionSite.RoutineMashup.AddRange(function.Data);
-                                injected = true;
-                                break;
-                            }
-                            if (!injected)
-                            {
-                                Console.WriteLine($"Error: could not inject function {function.Name}; function longer than any available injection site.");
-                                return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
-                            }
-                            if (emitC)
-                            {
-                                Console.WriteLine($"== {function.Name} ==\n");
-                                Console.WriteLine(string.Join('\n', function.Instructions.Select(i => i.Text)));
-                                Console.WriteLine("\n");
-                            }
-                        }
-                    }
-                }
-
-                string[] variableDeclarations = varRegex.Split(asmFileText);
-                for (int i = 1; i< variableDeclarations.Length; i += 3)
-                {
-                    variables.Add(new(variableDeclarations[i], variableDeclarations[i + 1]));
-                }
-
-                if (variables.Any(v => variables.Count(v2 => v2.Name == v.Name) > 1))
-                {
-                    Console.WriteLine($"Error: Duplicate variables '{variables.First(v => variables.Count(v2 => v2.Name == v.Name) > 1).Name}' detected.");
-                    return (int)WiinjectReturnCode.DUPLICATE_VARIABLE_NAME;
-                }
-
-                string[] assemblyRoutines = funcRegex.Split(asmFileText);
-
-                for (int i = 1; i < assemblyRoutines.Length; i += 3)
-                {
-                    routines.Add(new(assemblyRoutines[i], uint.Parse(assemblyRoutines[i + 1], NumberStyles.HexNumber), assemblyRoutines[i + 2]));
-                }
-            }
-
-            if (injectionSites.Sum(s => s.Length) < 4)
-            {
-                Console.WriteLine($"Error: Max injection length with provided addresses calculated to be {injectionSites.Sum(s => s.Length)} which is less than one instruction.");
-                return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
-            }
-
-            foreach (Variable variable in variables)
-            {
-                bool injected = false;
-                foreach (InjectionSite injectionSite in injectionSites.OrderBy(s => s.Length - s.RoutineMashup.Count))
-                {
-                    if (injectionSite.RoutineMashup.Count + variable.Data.Length > injectionSite.Length)
-                    {
-                        continue;
-                    }
-
-                    variable.InsertionPoint = injectionSite.StartAddress + (uint)injectionSite.RoutineMashup.Count;
-                    injectionSite.RoutineMashup.AddRange(variable.Data);
-                    injected = true;
-                    break;
-                }
-                if (!injected)
-                {
-                    Console.WriteLine($"Error: could not inject variable {variable.Name}; variable longer than any available injection site.");
-                    return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
-                }
-            }
-
-            foreach (Routine routine in routines)
-            {
-                if (routine.RoutineMode == Routine.Mode.HEX)
-                {
-                    riivolution.AddMemoryPatch(routine.InsertionPoint, routine.Data);
-                }
-                else if (routine.RoutineMode == Routine.Mode.REPL)
-                {
-                    routine.ReplaceBl(resolvedFunctions, routine.InsertionPoint);
-                    riivolution.AddMemoryPatch(routine.InsertionPoint, routine.Data);
-                }
-                else
-                {
-                    bool injected = false;
-                    foreach (InjectionSite injectionSite in injectionSites.OrderBy(s => s.Length - s.RoutineMashup.Count))
-                    {
-                        if (injectionSite.RoutineMashup.Count + routine.Data.Length > injectionSite.Length)
-                        {
-                            continue;
-                        }
-
-                        uint branchLocation = injectionSite.StartAddress + (uint)injectionSite.RoutineMashup.Count;
-                        routine.SetBranchInstruction(branchLocation);
-                        routine.ReplaceLv(variables);
-                        routine.ReplaceBl(resolvedFunctions, branchLocation);
-                        injectionSite.RoutineMashup.AddRange(routine.Data);
-                        injected = true;
-                        riivolution.AddMemoryPatch(routine.InsertionPoint, routine.BranchInstruction);
-                        break;
-                    }
-                    if (!injected)
-                    {
-                        Console.WriteLine($"Error: could not inject routine beginning with {routine.Assembly.TakeWhile(c => c != '\n' && c != '\r')}; routine longer than any available injection site.");
-                        return (int)WiinjectReturnCode.INJECTION_SITES_TOO_SMALL;
-                    }
-                }
-            }
-
             Directory.CreateDirectory(Path.Combine(outputFolder, patchName));
             Directory.CreateDirectory(Path.Combine(outputFolder, "Riivolution"));
 
-            InjectionSite[] usedInjectionSites = injectionSites.Where(s => s.RoutineMashup.Count > 0).ToArray();
-            for (int i = 0; i < usedInjectionSites.Length; i++)
+            (string, string)[] asmFiles = Directory.GetFiles(folder, "*.s", SearchOption.AllDirectories).Select(f => (Path.GetFileNameWithoutExtension(f), File.ReadAllText(f))).ToArray();
+            (string, string)[] cFiles = Directory.GetFiles(folder, "*.c", SearchOption.AllDirectories).Select(f => (Path.GetFileNameWithoutExtension(f), File.ReadAllText(f))).ToArray();
+
+            string gccExe = "powerpc-eabi-gcc";
+            string objdumpExe = "powerpc-eabi-objdump";
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                File.WriteAllBytes(Path.Combine(outputFolder, patchName, $"patch{i}.bin"), usedInjectionSites[i].RoutineMashup.ToArray());
-                riivolution.AddMemoryFilesPatch(usedInjectionSites[i].StartAddress, $"/{patchName}/patch{i}.bin");
+                gccExe += ".exe";
+                objdumpExe += ".exe";
+            }
+            string gccPath = Path.Combine(devkitProPath, "devkitPPC", "bin", gccExe);
+            string objdumpPath = Path.Combine(devkitProPath, "devkitPPC", "bin", objdumpExe);
+
+            string[] symbolsMapParsed = Array.Empty<string>();
+            if (!string.IsNullOrEmpty(symbolsMap))
+            {
+                symbolsMapParsed = File.ReadAllLines(symbolsMap);
+            }
+
+            WiinjectResult result = new();
+            try
+            {
+                result = WiinjectEngine.AssemblePatch(injectionAddresses, injectionEndAddresses, asmFiles, cFiles, inputPatch, symbolsMapParsed, gccPath, objdumpPath, patchName);
+            }
+            catch (WiinjectException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return (int)WiinjectReturnCode.ERROR;
+            }
+
+            foreach (string binPatch in result.OutputBinaryPatches.Keys)
+            {
+                File.WriteAllBytes(Path.Combine(outputFolder, patchName, binPatch), result.OutputBinaryPatches[binPatch]);
             }
 
             if (consoleOutput)
             {
-                Console.WriteLine(riivolution.PatchXml.OuterXml);
+                Console.WriteLine(result.OutputRiivolution.PatchXml.OuterXml);
             }
             else
             {
                 string outputPath = Path.Combine(outputFolder, "Riivolution", $"{patchName}.xml");
-                riivolution.PatchXml.Save(outputPath);
+                result.OutputRiivolution.PatchXml.Save(outputPath);
                 Console.WriteLine($"Wrote to {outputPath}");
             }
 

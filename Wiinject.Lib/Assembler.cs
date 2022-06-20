@@ -41,6 +41,8 @@ namespace Wiinject
 
         public Routine(string mode, uint insertionPoint, string assembly)
         {
+            BranchInstruction = new byte[0];
+            Data = new byte[0];
             RoutineMode = (Mode)Enum.Parse(typeof(Mode), mode.ToUpper());
             Assembly = assembly;
             InsertionPoint = insertionPoint;
