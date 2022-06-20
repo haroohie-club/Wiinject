@@ -9,7 +9,7 @@
     <RepositoryUrl>https://github.com/jonko0493/Wiinject</RepositoryUrl>
     <PackageProjectUrl>https://github.com/jonko0493/Wiinject</PackageProjectUrl>
     <RepositoryType>GitHub</RepositoryType>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
