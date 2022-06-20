@@ -6,6 +6,6 @@ namespace Wiinject
     {
         public List<string> EmittedCFiles { get; set; } = new();
         public Dictionary<string, byte[]> OutputBinaryPatches { get; set; } = new();
-        public Riivolution OutputRiivolution { get; set; } = new();
+        public Riivolution OutputRiivolution { get; set; }
     }
 }

@@ -53,7 +53,11 @@ namespace Wiinject
             Directory.CreateDirectory(Path.Combine(outputFolder, patchName));
             Directory.CreateDirectory(Path.Combine(outputFolder, "Riivolution"));
 
-            (string, string)[] asmFiles = Directory.GetFiles(folder, "*.s", SearchOption.AllDirectories).Select(f => (Path.GetFileNameWithoutExtension(f), File.ReadAllText(f))).ToArray();
+            Dictionary<string, (string, string)[]> asmFiles = new();
+            foreach (string directory in Directory.GetDirectories(folder))
+            {
+                asmFiles.Add(Path.GetFileName(directory), Directory.GetFiles(directory, "*.s", SearchOption.AllDirectories).Select(f => (Path.GetFileNameWithoutExtension(f), File.ReadAllText(f))).ToArray());
+            }
             (string, string)[] cFiles = Directory.GetFiles(folder, "*.c", SearchOption.AllDirectories).Select(f => (Path.GetFileNameWithoutExtension(f), File.ReadAllText(f))).ToArray();
 
             string gccExe = "powerpc-eabi-gcc";
@@ -86,6 +90,14 @@ namespace Wiinject
             foreach (string binPatch in result.OutputBinaryPatches.Keys)
             {
                 File.WriteAllBytes(Path.Combine(outputFolder, patchName, binPatch), result.OutputBinaryPatches[binPatch]);
+            }
+
+            if (emitC)
+            {
+                foreach (string cFile in result.EmittedCFiles)
+                {
+                    Console.WriteLine(cFile);
+                }
             }
 
             if (consoleOutput)

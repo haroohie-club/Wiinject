@@ -18,24 +18,27 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="test-cases\bad\test.s">
+    <None Update="test-cases\bad\patchId\test.s">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="test-cases\duplicate_variables\test1.s">
+    <None Update="test-cases\duplicate_variables\duplicateVariables\test1.s">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="test-cases\duplicate_variables\test2.s">
+    <None Update="test-cases\duplicate_variables\duplicateVariables\test2.s">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="test-cases\gcc_not_found\test.c">
+    <None Update="test-cases\gcc_not_found\gccNotFound\test.c">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="test-cases\gcc_not_found\test.s">
+    <None Update="test-cases\gcc_not_found\gccNotFound\test.s">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="test-cases\good\test.s">
+    <None Update="test-cases\good\patch1\test.s">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+	  <None Update="test-cases\good\patch2\test2.s">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
   </ItemGroup>
 
 </Project>
