@@ -12,8 +12,8 @@ namespace Wiinject.Tests
         public void ResolveBranchesTest(string direction, uint returnTestEntryPoint, uint callTestEntryPoint, string expectedAsm)
         {
             List<CFunction> functions = new();
-            functions.Add(new("return_test", TestHelpers.ReturnTestC) { EntryPoint = returnTestEntryPoint });
-            functions.Add(new("call_test", TestHelpers.CallTestC) { EntryPoint = callTestEntryPoint });
+            functions.Add(new("return_test", "00008000", TestHelpers.ReturnTestC) { EntryPoint = returnTestEntryPoint });
+            functions.Add(new("call_test", "00008000", TestHelpers.CallTestC) { EntryPoint = callTestEntryPoint });
 
             functions[0].ResolveFunctionRefs(functions);
             functions[1].ResolveFunctionRefs(functions);
@@ -36,7 +36,7 @@ namespace Wiinject.Tests
         public void ResolveRecursiveBranchTest()
         {
             List<CFunction> functions = new();
-            functions.Add(new("recursion_test", TestHelpers.RecursionTestC) { EntryPoint = 0x8001200 });
+            functions.Add(new("recursion_test", "00008000", TestHelpers.RecursionTestC) { EntryPoint = 0x8001200 });
             functions[0].ResolveFunctionRefs(functions);
 
             List<CFunction> resolvedFunctions = new();

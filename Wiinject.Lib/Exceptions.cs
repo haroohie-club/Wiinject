@@ -47,4 +47,11 @@ namespace Wiinject
         {
         }
     }
+
+    public class JumptableFixingException : WiinjectException
+    {
+        public JumptableFixingException(string message) : base(message)
+        {
+        }
+    }
 }

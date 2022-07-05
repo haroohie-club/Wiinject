@@ -91,6 +91,23 @@ namespace Wiinject
                             }
                         }
 
+                        CFunction? rawData = cFile.Functions.FirstOrDefault(f => f.Name == ".rodata");
+                        if (rawData is not null)
+                        {
+                            foreach (InjectionSite injectionSite in patchInjectionSites.OrderBy(s => s.Length - s.RoutineMashup.Count))
+                            {
+                                if (injectionSite.RoutineMashup.Count + rawData.Instructions.Count * 4 > injectionSite.Length)
+                                {
+                                    continue;
+                                }
+
+                                rawData.EntryPoint = injectionSite.CurrentAddress;
+                                rawData.SetDataFromInstructions();
+                                injectionSite.RoutineMashup.AddRange(rawData.Data);
+                                break;
+                            }
+                        }
+
                         foreach (IFunction iFunction in resolvedFunctions)
                         {
                             if (!iFunction.Existing)
@@ -106,6 +123,10 @@ namespace Wiinject
 
                                     function.EntryPoint = injectionSite.CurrentAddress;
                                     function.ResolveBranches();
+                                    if (rawData is not null)
+                                    {
+                                        function.FixJumpTableJumps(rawData);
+                                    }
                                     function.SetDataFromInstructions();
                                     injectionSite.RoutineMashup.AddRange(function.Data);
                                     injected = true;

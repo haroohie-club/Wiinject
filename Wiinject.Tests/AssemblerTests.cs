@@ -42,7 +42,7 @@ namespace Wiinject.Tests
         {
             Routine routine = new("hook", routineInsertionPoint, TestHelpers.TestFunctionCallAsm);
             List<IFunction> functions = new();
-            functions.Add(new CFunction("test_function", TestHelpers.TestFunctionC) { EntryPoint = functionInjectionPoint });
+            functions.Add(new CFunction("test_function", "00008000", TestHelpers.TestFunctionC) { EntryPoint = functionInjectionPoint });
 
             routine.ReplaceBl(functions, routineInjectionPoint);
 
