@@ -96,8 +96,20 @@ namespace Wiinject
                 Match match = BlRegex.Match(line);
                 if (match.Success)
                 {
-                    int relativeBranch = (int)(functions.First(f => f.Name == match.Groups["function"].Value).EntryPoint - injectionPoint);
-                    sb.AppendLine($"{match.Groups["mnemonic"].Value} 0x{(long)relativeBranch:X16}");
+                    try
+                    {
+                        int relativeBranch = (int)(functions.First(f => f.Name == match.Groups["function"].Value).EntryPoint - injectionPoint);
+                        sb.AppendLine($"{match.Groups["mnemonic"].Value} 0x{(long)relativeBranch:X16}");
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        throw new FailedToResolveReferencedFunctionException($"Failed to resolve referenced C function {match.Groups["function"].Value} at instruction '{line}':" +
+                            $"no such function exists.");
+                    }
+                    catch
+                    {
+                        throw new FailedToReplaceBlException(line);
+                    }
                 }
                 else
                 {
@@ -122,9 +134,17 @@ namespace Wiinject
                 Match match = LvRegex.Match(line);
                 if (match.Success)
                 {
-                    uint variableAddress = variables.First(f => f.Name == match.Groups["variableName"].Value).InsertionPoint;
-                    sb.AppendLine($"lis {match.Groups["register"].Value},0x{variableAddress >> 16:X4}");
-                    sb.AppendLine($"addi {match.Groups["register"].Value},{match.Groups["register"].Value},0x{variableAddress & 0xFFFF:X4}");
+                    try
+                    {
+                        uint variableAddress = variables.First(f => f.Name == match.Groups["variableName"].Value).InsertionPoint;
+                        sb.AppendLine($"lis {match.Groups["register"].Value},0x{variableAddress >> 16:X4}");
+                        sb.AppendLine($"addi {match.Groups["register"].Value},{match.Groups["register"].Value},0x{variableAddress & 0xFFFF:X4}");
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        throw new FailedToResolveAssemblyVariableExcpetion($"Failed to resolve assembly variable {match.Groups["variableName"].Value}: no such variable" +
+                            $"has been declared.");
+                    }
                 }
                 else
                 {

@@ -246,9 +246,17 @@ namespace Wiinject
         {
             if (IsBranchLink)
             {
-                Match match = _branchLinkRegex.Match(Text);
-                Text = $"{match.Groups["mnemonic"].Value} 0x{(long)relativeBranch:X16}";
-                Assemble();
+                string oldInstruction = Text;
+                try
+                {
+                    Match match = _branchLinkRegex.Match(Text);
+                    Text = $"{match.Groups["mnemonic"].Value} 0x{(long)relativeBranch:X16}";
+                    Assemble();
+                }
+                catch (Exception ex)
+                {
+                    throw new FailedToResolveBranchLinkException($"Failed to resolve branch link in instruction {oldInstruction} for branch 0x{relativeBranch:X16}. Message: {ex.Message}");
+                }
             }
         }
 

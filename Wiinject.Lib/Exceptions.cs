@@ -54,4 +54,32 @@ namespace Wiinject
         {
         }
     }
+
+    public class FailedToResolveBranchLinkException : WiinjectException
+    {
+        public FailedToResolveBranchLinkException(string message) : base(message)
+        {
+        }
+    }
+
+    public class FailedToResolveReferencedFunctionException : WiinjectException
+    {
+        public FailedToResolveReferencedFunctionException(string message) : base(message)
+        {
+        }
+    }
+
+    public class FailedToReplaceBlException : WiinjectException
+    {
+        public FailedToReplaceBlException(string blInstruction) : base($"Failed to replace bl in instruction `{blInstruction}`")
+        {
+        }
+    }
+
+    public class FailedToResolveAssemblyVariableExcpetion : WiinjectException
+    {
+        public FailedToResolveAssemblyVariableExcpetion(string message) : base(message)
+        {
+        }
+    }
 }
