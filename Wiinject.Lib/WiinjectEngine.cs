@@ -84,10 +84,13 @@ namespace Wiinject
 
                         foreach (Match bl in Routine.BlRegex.Matches(asmFileText))
                         {
-                            CFunction function = cFile.Functions.First(f => f.Name == bl.Groups["function"].Value);
-                            if (!resolvedFunctions.Any(f => f.Name == function.Name))
+                            CFunction? function = cFile.Functions.FirstOrDefault(f => f.Name == bl.Groups["function"].Value);
+                            if (function is not null)
                             {
-                                resolvedFunctions.AddRange(function.FunctionsToResolve(resolvedFunctions.Where(f => !f.Existing).Select(f => (CFunction)f).ToList()));
+                                if (!resolvedFunctions.Any(f => f.Name == function.Name))
+                                {
+                                    resolvedFunctions.AddRange(function.FunctionsToResolve(resolvedFunctions.Where(f => !f.Existing).Select(f => (CFunction)f).ToList()));
+                                }
                             }
                         }
 
