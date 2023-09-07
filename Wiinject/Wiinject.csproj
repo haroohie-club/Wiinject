@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Authors>Jonko</Authors>
     <Description>Wiinject is a tool for injecting ASM hacks into Wii games using Riivolution memory patches.</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
