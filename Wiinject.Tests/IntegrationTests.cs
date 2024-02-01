@@ -8,17 +8,17 @@ namespace Wiinject.Tests
         [Test]
         public void SuccessfulAsmOnlyTest()
         {
-            int returnCode = Program.Main(new string[]
-            {
+            int returnCode = Program.Main(
+            [
                 "-f", "test-cases/good",
                 "-i", "80004000,80014000",
                 "-e", "80004010,80014100",
                 "-o", "out-cases",
                 "-n", "test-patch"
-            });
+            ]);
 
-            Assert.AreEqual((int)Program.WiinjectReturnCode.OK, returnCode);
-            Assert.AreEqual(@"<wiidisc>
+            Assert.That((int)Program.WiinjectReturnCode.OK, Is.EqualTo(returnCode));
+            Assert.That(@"<wiidisc>
   <patch id=""patch1"">
     <memory offset=""0x8006FCA4"" value=""7F86E3787F67DB78"" />
     <memory offset=""0x8006FCB0"" value=""7F28CB78"" />
@@ -36,7 +36,7 @@ namespace Wiinject.Tests
     <memory offset=""0x80014068"" valuefile=""/test-patch/patch2.bin"" />
   </patch>
 </wiidisc>",
-            File.ReadAllText(Path.Combine(".", "out-cases", "Riivolution", "test-patch.xml")));
+            Is.EqualTo(File.ReadAllText(Path.Combine(".", "out-cases", "Riivolution", "test-patch.xml"))));
         }
 
         [Test]
@@ -44,78 +44,78 @@ namespace Wiinject.Tests
         {
             Keystone.KeystoneException exception = Assert.Throws<Keystone.KeystoneException>(delegate
             {
-                Program.Main(new string[]
-                {
+                Program.Main(
+                [
                     "-f", "test-cases/bad",
                     "-i", "80004000,80014000",
                     "-e", "80004010,80014100",
                     "-o", "out-cases",
                     "-n", "test-patch"
-                });
+                ]);
             });
 
-            Assert.AreEqual("Error while assembling instructions.", exception.Message);
+            Assert.That("Error while assembling instructions.", Is.EqualTo(exception.Message));
         }
 
         [Test]
         public void AddressCountMismatchTest()
         {
-            int returnCode = Program.Main(new string[]
-            {
+            int returnCode = Program.Main(
+            [
                 "-f", "test-cases/good",
                 "-i", "80004000",
                 "-e", "80004010,80014100",
                 "-o", "out-cases",
                 "-n", "test-patch"
-            });
+            ]);
 
-            Assert.AreEqual((int)Program.WiinjectReturnCode.ERROR, returnCode);
+            Assert.That((int)Program.WiinjectReturnCode.ERROR, Is.EqualTo(returnCode));
         }
 
         [Test]
         public void GccNotFoundTest()
         {
-            int returnCode = Program.Main(new string[]
-            {
+            int returnCode = Program.Main(
+            [
                 "-f", "test-cases/gcc_not_found",
                 "-i", "80004000",
                 "-e", "80014000",
                 "-o", "out-cases",
                 "-n", "test-patch",
                 "-d", "devkitpro-not-here",
-            });
+            ]);
 
-            Assert.AreEqual((int)Program.WiinjectReturnCode.ERROR, returnCode);
+            Assert.That((int)Program.WiinjectReturnCode.ERROR, Is.EqualTo(returnCode));
         }
 
         [Test]
         public void InjectionSitesTooSmallTest()
         {
-            int returnCode = Program.Main(new string[]
-            {
+            int returnCode = Program.Main(
+            [
                 "-f", "test-cases/good",
                 "-i", "80004000",
                 "-e", "80004010",
                 "-o", "out-cases",
                 "-n", "test-patch"
-            });
+            ]);
 
-            Assert.AreEqual((int)Program.WiinjectReturnCode.ERROR, returnCode);
+            Assert.That((int)Program.WiinjectReturnCode.ERROR, Is.EqualTo(returnCode));
         }
 
         [Test]
         public void DuplicateVariablesTest()
         {
-            int returnCode = Program.Main(new string[]
-            {
+            int returnCode = Program.Main(
+            [
                 "-f", "test-cases/duplicate_variables",
                 "-i", "80004000",
                 "-e", "80014000",
                 "-o", "out-cases",
                 "-n", "test-patch"
-            });
+            ]);
 
-            Assert.AreEqual((int)Program.WiinjectReturnCode.ERROR, returnCode);
+            Assert.That((int)Program.WiinjectReturnCode.ERROR, Is.EqualTo(returnCode));
         }
     }
 }

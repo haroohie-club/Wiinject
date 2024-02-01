@@ -35,7 +35,7 @@ namespace Wiinject
                 result.OutputRiivolution = new(asmFiles.Keys);
             }
 
-            List<CFile> cFiles = new();
+            List<CFile> cFiles = [];
             if (cFilesArray.Length > 0)
             {
                 if (!System.IO.File.Exists(gccPath))
@@ -59,16 +59,15 @@ namespace Wiinject
             {
                 injectionSites[i] = new() { StartAddress = injectionAddresses[i], EndAddress = injectionEndAddresses[i] };
             }
-            List<IFunction> resolvedFunctions = new();
-            resolvedFunctions.AddRange(DolphinSymbolsMap.ParseDolphinSymbolsMap(symbolsMap));
+            List<IFunction> resolvedFunctions = [.. DolphinSymbolsMap.ParseDolphinSymbolsMap(symbolsMap)];
             int binPatchNumber = 0;
 
             foreach (string patchId in asmFiles.Keys)
             {
                 Regex varRegex = new(@"\$(?<name>[\w\d_]+): (?<instruction>.+)\r?\n");
                 Regex funcRegex = new(@"(?<mode>repl|hook|ref|hex)_(?<address>[A-F\d]{8}):");
-                List<Variable> variables = new();
-                List<Routine> routines = new();
+                List<Variable> variables = [];
+                List<Routine> routines = [];
 
                 InjectionSite[] patchInjectionSites = new InjectionSite[injectionAddresses.Length];
                 for (int i = 0; i < patchInjectionSites.Length; i++)
@@ -231,7 +230,7 @@ namespace Wiinject
                 InjectionSite[] usedInjectionSites = patchInjectionSites.Where(s => s.RoutineMashup.Count > 0).ToArray();
                 for (int i = 0; i < usedInjectionSites.Length; i++)
                 {
-                    result.OutputBinaryPatches.Add($"patch{binPatchNumber}.bin", usedInjectionSites[i].RoutineMashup.ToArray());
+                    result.OutputBinaryPatches.Add($"patch{binPatchNumber}.bin", [.. usedInjectionSites[i].RoutineMashup]);
                     result.OutputRiivolution.AddMemoryFilesPatch(usedInjectionSites[i].StartAddress, $"/{patchName}/patch{binPatchNumber}.bin", patchId);
                     binPatchNumber++;
                 }

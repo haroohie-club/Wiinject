@@ -17,14 +17,14 @@ namespace Wiinject
             keystone.ThrowOnError = true;
             EncodedData data = keystone.Assemble(asm, 0);
 
-            List<byte> bigEndianData = new();
+            List<byte> bigEndianData = [];
 
             for (int i = 0; i < data.Buffer.Length; i += 4)
             {
                 bigEndianData.AddRange(data.Buffer.Skip(i).Take(4).Reverse());
             }
 
-            return bigEndianData.ToArray();
+            return [.. bigEndianData];
         }
     }
 
@@ -56,12 +56,12 @@ namespace Wiinject
                     Console.WriteLine($"Error: Hex data for  HEX_{InsertionPoint:X8} does not have an even number of characters.");
                     return;
                 }
-                List<byte> data = new();
+                List<byte> data = [];
                 for (int i = 0; i < hex.Length; i += 2)
                 {
                     data.Add(byte.Parse(hex[i..(i + 2)], NumberStyles.HexNumber));
                 }
-                Data = data.ToArray();
+                Data = [.. data];
             }
             else
             {
@@ -165,19 +165,12 @@ namespace Wiinject
         }
     }
 
-    public class Variable
+    public class Variable(string name, string instruction)
     {
-        public string Name { get; set; }
-        public string Instruction { get; set; }
-        public byte[] Data { get; set; }
+        public string Name { get; set; } = name;
+        public string Instruction { get; set; } = instruction;
+        public byte[] Data { get; set; } = Assembler.Assemble(instruction);
         public uint InsertionPoint { get; set; }
-
-        public Variable(string name, string instruction)
-        {
-            Name = name;
-            Instruction = instruction;
-            Data = Assembler.Assemble(instruction);
-        }
     }
 
     public class InjectionSite
@@ -186,6 +179,6 @@ namespace Wiinject
         public uint EndAddress { get; set; }
         public uint CurrentAddress => StartAddress + (uint)RoutineMashup.Count;
         public int Length => (int)(EndAddress - StartAddress + 4); // +4 for including the end address
-        public List<byte> RoutineMashup { get; set; } = new();
+        public List<byte> RoutineMashup { get; set; } = [];
     }
 }

@@ -21,7 +21,7 @@ namespace Wiinject
         public static int Main(string[] args)
         {
             string folder = string.Empty, outputFolder = ".", patchName = "patch", inputPatch = string.Empty, devkitProPath = "C:\\devkitPro", symbolsMap = string.Empty;
-            uint[] injectionAddresses = Array.Empty<uint>(), injectionEndAddresses = Array.Empty<uint>();
+            uint[] injectionAddresses = [], injectionEndAddresses = [];
             bool consoleOutput = false, emitC = false;
 
             OptionSet options = new()
@@ -53,7 +53,7 @@ namespace Wiinject
             Directory.CreateDirectory(Path.Combine(outputFolder, patchName));
             Directory.CreateDirectory(Path.Combine(outputFolder, "Riivolution"));
 
-            Dictionary<string, (string, string)[]> asmFiles = new();
+            Dictionary<string, (string, string)[]> asmFiles = [];
             foreach (string directory in Directory.GetDirectories(folder))
             {
                 asmFiles.Add(Path.GetFileName(directory), Directory.GetFiles(directory, "*.s", SearchOption.AllDirectories).Select(f => (Path.GetFileNameWithoutExtension(f), File.ReadAllText(f))).ToArray());
@@ -70,7 +70,7 @@ namespace Wiinject
             string gccPath = Path.Combine(devkitProPath, "devkitPPC", "bin", gccExe);
             string objdumpPath = Path.Combine(devkitProPath, "devkitPPC", "bin", objdumpExe);
 
-            string[] symbolsMapParsed = Array.Empty<string>();
+            string[] symbolsMapParsed = [];
             if (!string.IsNullOrEmpty(symbolsMap))
             {
                 symbolsMapParsed = File.ReadAllLines(symbolsMap);

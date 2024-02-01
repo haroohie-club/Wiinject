@@ -10,20 +10,15 @@ using Wiinject.Interfaces;
 
 namespace Wiinject
 {
-    public class CFile
+    public partial class CFile(string filePath)
     {
-        public string FilePath { get; set; }
+        public string FilePath { get; set; } = filePath;
         public string Name => Path.GetFileNameWithoutExtension(FilePath);
         public string OutPath => Path.Combine(Path.GetTempPath(), $"{Name}.o");
-        public List<CFunction> Functions { get; set; } = new();
+        public List<CFunction> Functions { get; set; } = [];
         private StringBuilder _objdumpOutputReader;
 
-        private static readonly Regex _FuncRegex = new(@"<(?<functionName>\.?[\w\d_-]+)>:");
-
-        public CFile(string filePath)
-        {
-            FilePath = filePath;
-        }
+        private static readonly Regex _FuncRegex = _funcRegex();
 
         public void Compile(string gccPath, string objdumpPath)
         {
@@ -70,6 +65,9 @@ namespace Wiinject
         {
             return Name;
         }
+
+        [GeneratedRegex(@"<(?<functionName>\.?[\w\d_-]+)>:")]
+        private static partial Regex _funcRegex();
     }
 
     public class CFunction : IFunction
@@ -82,17 +80,17 @@ namespace Wiinject
         public uint SimulatedEntryPoint { get; set; }
         public byte[] Data { get; set; }
         public List<Instruction> Instructions { get; set; }
-        public HashSet<CFunction> FunctionRefs { get; set; } = new();
+        public HashSet<CFunction> FunctionRefs { get; set; } = [];
         public bool Existing => false;
 
-        private string _data;
+        private readonly string _data;
 
         public CFunction(string name, string simulatedEntryPoint, string data)
         {
             Name = name;
             SimulatedEntryPoint = uint.Parse(simulatedEntryPoint, NumberStyles.HexNumber);
             _data = data;
-            Data = Array.Empty<byte>();
+            Data = [];
             Instructions = _DataRegex.Matches(_data).Select(d => new Instruction(d.Groups["disassembledInstruction"].Value, d.Groups["assembledInstruction"].Value, d.Groups["branchRef"].Value)).ToList();
         }
 
@@ -100,9 +98,9 @@ namespace Wiinject
         {
             Name = name;
             EntryPoint = entryPoint;
-            Instructions = new();
-            FunctionRefs = new();
-            Data = Array.Empty<byte>();
+            Instructions = [];
+            FunctionRefs = [];
+            Data = [];
             _data = string.Empty;
         }
 
@@ -236,7 +234,7 @@ namespace Wiinject
 
         public Instruction(string text)
         {
-            Data = Array.Empty<byte>();
+            Data = [];
             BranchRef = string.Empty;
             Text = text;
             Assemble();

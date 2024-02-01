@@ -13,18 +13,12 @@ namespace Wiinject
         }
     }
 
-    public class GccNotFoundException : WiinjectException
+    public class GccNotFoundException(string gccPath) : WiinjectException($"GCC executable not found on path ({gccPath})!")
     {
-        public GccNotFoundException(string gccPath) : base($"GCC executable not found on path ({gccPath})!")
-        {
-        }
     }
 
-    public class ObjdumpNotFoundException : WiinjectException
+    public class ObjdumpNotFoundException(string objdumpPath) : WiinjectException($"Objdump executable not found on path ({objdumpPath})!")
     {
-        public ObjdumpNotFoundException(string objdumpPath) : base($"Objdump executable not found on path ({objdumpPath})!")
-        {
-        }
     }
 
     public class AddressCountMismatchException : WiinjectException
@@ -34,52 +28,31 @@ namespace Wiinject
         }
     }
 
-    public class InjectionSitesTooSmallException : WiinjectException
+    public class InjectionSitesTooSmallException(string message) : WiinjectException(message)
     {
-        public InjectionSitesTooSmallException(string message) : base(message)
-        {
-        }
     }
 
-    public class DuplicateVariableNameException : WiinjectException
+    public class DuplicateVariableNameException(string variableName) : WiinjectException($"Duplicate variables '{variableName}' detected.")
     {
-        public DuplicateVariableNameException(string variableName) : base($"Duplicate variables '{variableName}' detected.")
-        {
-        }
     }
 
-    public class JumptableFixingException : WiinjectException
+    public class JumptableFixingException(string message) : WiinjectException(message)
     {
-        public JumptableFixingException(string message) : base(message)
-        {
-        }
     }
 
-    public class FailedToResolveBranchLinkException : WiinjectException
+    public class FailedToResolveBranchLinkException(string message) : WiinjectException(message)
     {
-        public FailedToResolveBranchLinkException(string message) : base(message)
-        {
-        }
     }
 
-    public class FailedToResolveReferencedFunctionException : WiinjectException
+    public class FailedToResolveReferencedFunctionException(string message) : WiinjectException(message)
     {
-        public FailedToResolveReferencedFunctionException(string message) : base(message)
-        {
-        }
     }
 
-    public class FailedToReplaceBlException : WiinjectException
+    public class FailedToReplaceBlException(string blInstruction) : WiinjectException($"Failed to replace bl in instruction `{blInstruction}`")
     {
-        public FailedToReplaceBlException(string blInstruction) : base($"Failed to replace bl in instruction `{blInstruction}`")
-        {
-        }
     }
 
-    public class FailedToResolveAssemblyVariableExcpetion : WiinjectException
+    public class FailedToResolveAssemblyVariableExcpetion(string message) : WiinjectException(message)
     {
-        public FailedToResolveAssemblyVariableExcpetion(string message) : base(message)
-        {
-        }
     }
 }

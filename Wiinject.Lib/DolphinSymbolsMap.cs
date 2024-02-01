@@ -8,7 +8,7 @@ namespace Wiinject
     {
         public static List<ExistingFunction> ParseDolphinSymbolsMap(IEnumerable<string> lines)
         {
-            List<ExistingFunction> functions = new();
+            List<ExistingFunction> functions = [];
 
             foreach (string line in lines)
             {

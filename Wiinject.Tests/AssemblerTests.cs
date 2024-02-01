@@ -21,7 +21,7 @@ namespace Wiinject.Tests
             string validAsm = @"mr 1,2";
 
             Assert.DoesNotThrow(() => Assembler.Assemble(validAsm));
-            Assert.AreEqual(Assembler.Assemble(validAsm).ToHexString(), "7C 41 13 78");
+            Assert.That(Assembler.Assemble(validAsm).ToHexString(), Is.EqualTo("7C 41 13 78"));
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace Wiinject.Tests
             Routine routine = new("hook", insertionPoint, @"mr 1,2");
             routine.SetBranchInstruction(branchTo);
 
-            Assert.AreEqual(routine.BranchInstruction.ToHexString(), hexStringResult);
+            Assert.That(routine.BranchInstruction.ToHexString(), Is.EqualTo(hexStringResult));
         }
 
         [Test]
@@ -41,12 +41,14 @@ namespace Wiinject.Tests
         public void RoutineReplaceBlTest(string direction, uint routineInsertionPoint, uint functionInjectionPoint, uint routineInjectionPoint, string hexResult)
         {
             Routine routine = new("hook", routineInsertionPoint, TestHelpers.TestFunctionCallAsm);
-            List<IFunction> functions = new();
-            functions.Add(new CFunction("test_function", "00008000", TestHelpers.TestFunctionC) { EntryPoint = functionInjectionPoint });
+            List<IFunction> functions =
+            [
+                new CFunction("test_function", "00008000", TestHelpers.TestFunctionC) { EntryPoint = functionInjectionPoint },
+            ];
 
             routine.ReplaceBl(functions, routineInjectionPoint);
 
-            Assert.IsTrue(routine.Data.ToHexString().Contains(hexResult));
+            Assert.That(routine.Data.ToHexString().Contains(hexResult), Is.True);
         }
     }
 }
