@@ -10,6 +10,7 @@
     <PackageProjectUrl>https://github.com/jonko0493/Wiinject</PackageProjectUrl>
     <RepositoryType>GitHub</RepositoryType>
     <Version>1.2.2</Version>
+    <RootNamespace>Wiinject</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Wiinject.Lib\Wiinject.Lib.csproj" />
+    <ProjectReference Include="..\HaroohieClub.Wiinject.Lib\HaroohieClub.Wiinject.Lib.csproj" />
   </ItemGroup>
 
 </Project>

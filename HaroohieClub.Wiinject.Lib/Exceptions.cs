@@ -4,11 +4,11 @@ namespace Wiinject.Lib
 {
     public class WiinjectException : Exception
     {
-        public WiinjectException() : base("Unknown Wiinject exception!")
+        public WiinjectException() : base("Unknown HaroohieClub.Wiinject exception!")
         {
         }
 
-        public WiinjectException(string message) : base($"Wiinject exception: {message}")
+        public WiinjectException(string message) : base($"HaroohieClub.Wiinject exception: {message}")
         {
         }
     }
