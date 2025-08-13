@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using Wiinject.Interfaces;
+﻿using System.IO;
+using System.Text;
 
-namespace Wiinject
+namespace Wiinject.Lib
 {
-    public class DolphinSymbolsMap
+    public static class DolphinSymbolsMap
     {
-        public static List<ExistingFunction> ParseDolphinSymbolsMap(IEnumerable<string> lines)
+        public static void WriteSymbolsMap(string[] lines, string outputFilePath)
         {
-            List<ExistingFunction> functions = [];
-
+            StringBuilder sb = new();
+            
             foreach (string line in lines)
             {
                 string[] components = line.Split(' ');
@@ -17,17 +16,11 @@ namespace Wiinject
                 {
                     continue;
                 }
-                functions.Add(new() { Name = components[4], EntryPoint = uint.Parse(components[0], NumberStyles.HexNumber) });
+
+                sb.AppendLine($"{components[4]} = 0x{components[0]}");
             }
-
-            return functions;
+            
+            File.WriteAllText(outputFilePath, sb.ToString());
         }
-    }
-
-    public class ExistingFunction : IFunction
-    {
-        public string Name { get; set; } = string.Empty;
-        public uint EntryPoint { get; set; }
-        public bool Existing => true;
     }
 }

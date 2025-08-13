@@ -17,7 +17,7 @@ namespace Wiinject.Tests
                 "-n", "test-patch"
             ]);
 
-            Assert.That((int)Program.WiinjectReturnCode.OK, Is.EqualTo(returnCode));
+            Assert.That((int)Program.WiinjectReturnCode.Ok, Is.EqualTo(returnCode));
             Assert.That(@"<wiidisc>
   <patch id=""patch1"">
     <memory offset=""0x8006FCA4"" value=""7F86E3787F67DB78"" />
@@ -69,7 +69,7 @@ namespace Wiinject.Tests
                 "-n", "test-patch"
             ]);
 
-            Assert.That((int)Program.WiinjectReturnCode.ERROR, Is.EqualTo(returnCode));
+            Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
         }
 
         [Test]
@@ -85,7 +85,7 @@ namespace Wiinject.Tests
                 "-d", "devkitpro-not-here",
             ]);
 
-            Assert.That((int)Program.WiinjectReturnCode.ERROR, Is.EqualTo(returnCode));
+            Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace Wiinject.Tests
                 "-n", "test-patch"
             ]);
 
-            Assert.That((int)Program.WiinjectReturnCode.ERROR, Is.EqualTo(returnCode));
+            Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace Wiinject.Tests
                 "-n", "test-patch"
             ]);
 
-            Assert.That((int)Program.WiinjectReturnCode.ERROR, Is.EqualTo(returnCode));
+            Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
         }
     }
 }

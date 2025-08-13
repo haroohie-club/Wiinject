@@ -7,8 +7,4 @@
     <Version>1.2.2</Version>
   </PropertyGroup>
 
-  <ItemGroup>
-	<PackageReference Include="Keystone.Net" Version="0.9.4" />
-  </ItemGroup>
-
 </Project>

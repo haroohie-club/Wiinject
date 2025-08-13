@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Wiinject
+namespace Wiinject.Lib
 {
     public class WiinjectException : Exception
     {
@@ -36,23 +36,7 @@ namespace Wiinject
     {
     }
 
-    public class JumptableFixingException(string message) : WiinjectException(message)
-    {
-    }
-
-    public class FailedToResolveBranchLinkException(string message) : WiinjectException(message)
-    {
-    }
-
-    public class FailedToResolveReferencedFunctionException(string message) : WiinjectException(message)
-    {
-    }
-
     public class FailedToReplaceBlException(string blInstruction) : WiinjectException($"Failed to replace bl in instruction `{blInstruction}`")
-    {
-    }
-
-    public class FailedToResolveAssemblyVariableExcpetion(string message) : WiinjectException(message)
     {
     }
 }

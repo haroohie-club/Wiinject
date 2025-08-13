@@ -5,8 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
-using Wiinject.Interfaces;
+using Wiinject.Lib;
 
 namespace Wiinject
 {
@@ -14,8 +13,8 @@ namespace Wiinject
     {
         public enum WiinjectReturnCode
         {
-            OK,
-            ERROR,
+            Ok,
+            Error,
         }
 
         public static int Main(string[] args)
@@ -47,7 +46,7 @@ namespace Wiinject
             if (string.IsNullOrEmpty(folder))
             {
                 options.WriteOptionDescriptions(Console.Out);
-                return (int)WiinjectReturnCode.OK;
+                return (int)WiinjectReturnCode.Ok;
             }
 
             Directory.CreateDirectory(Path.Combine(outputFolder, patchName));
@@ -84,7 +83,7 @@ namespace Wiinject
             catch (WiinjectException ex)
             {
                 Console.WriteLine(ex.Message);
-                return (int)WiinjectReturnCode.ERROR;
+                return (int)WiinjectReturnCode.Error;
             }
 
             foreach (string binPatch in result.OutputBinaryPatches.Keys)
@@ -111,7 +110,7 @@ namespace Wiinject
                 Console.WriteLine($"Wrote to {outputPath}");
             }
 
-            return (int)WiinjectReturnCode.OK;
+            return (int)WiinjectReturnCode.Ok;
         }
     }
 }
