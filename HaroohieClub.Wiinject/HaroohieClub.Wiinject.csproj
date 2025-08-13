@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
     <LangVersion>12.0</LangVersion>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.2.2</Version>
+    <Version>$(WiinjectVersion)</Version>
     <Title>Wiinject</Title>
     <AssemblyName>HaroohieClub.Wiinject</AssemblyName>
     <Authors>Jonko</Authors>
