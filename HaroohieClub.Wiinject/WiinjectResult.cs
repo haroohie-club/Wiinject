@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Wiinject.Lib
+namespace HaroohieClub.Wiinject
 {
     public class WiinjectResult
     {

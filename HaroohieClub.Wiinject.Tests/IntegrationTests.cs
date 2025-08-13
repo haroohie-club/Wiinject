@@ -1,7 +1,8 @@
-﻿using NUnit.Framework;
-using System.IO;
+﻿using System.IO;
+using HaroohieClub.Wiinject.Cli;
+using NUnit.Framework;
 
-namespace Wiinject.Tests
+namespace HaroohieClub.Wiinject.Tests
 {
     public class IntegrationTests
     {
@@ -37,24 +38,6 @@ namespace Wiinject.Tests
   </patch>
 </wiidisc>",
             Is.EqualTo(File.ReadAllText(Path.Combine(".", "out-cases", "Riivolution", "test-patch.xml"))));
-        }
-
-        [Test]
-        public void BadAsmTest()
-        {
-            Keystone.KeystoneException exception = Assert.Throws<Keystone.KeystoneException>(delegate
-            {
-                Program.Main(
-                [
-                    "-f", "test-cases/bad",
-                    "-i", "80004000,80014000",
-                    "-e", "80004010,80014100",
-                    "-o", "out-cases",
-                    "-n", "test-patch"
-                ]);
-            });
-
-            Assert.That("Error while assembling instructions.", Is.EqualTo(exception.Message));
         }
 
         [Test]

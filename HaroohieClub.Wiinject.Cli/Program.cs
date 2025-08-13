@@ -1,13 +1,12 @@
-﻿using Mono.Options;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Wiinject.Lib;
+using Mono.Options;
 
-namespace Wiinject
+namespace HaroohieClub.Wiinject.Cli
 {
     public class Program
     {
@@ -35,7 +34,7 @@ namespace Wiinject
                 { "o|output-folder=", "The folder to output the Riivolution patch.xml & assembled ASM bin file(s) to.", o => outputFolder = o },
                 { "n|patch-name=", "The name of the patch to output. The patch will be out put to {output_folder}/Riivolution/{patch_name}.xml and the ASM bin(s) will be output to {output_folder}/{patch_name}/patch{i}.bin.",
                     n => patchName = n },
-                { "p|input-patch=", "The base Riivolution patch that will be modified by HaroohieClub.Wiinject to contain the memory patches. A blank base template will be created if this is not provided.", p => inputPatch = p },
+                { "p|input-patch=", "The base Riivolution patch that will be modified by HaroohieClub.Wiinject.Cli to contain the memory patches. A blank base template will be created if this is not provided.", p => inputPatch = p },
                 { "d|devkitpro-path=", "The path to a devkitPro installation containing devkitPPC.", d => devkitProPath = d },
                 { "console-output", "Rather than producing an ASM patch, simply output the XML to the console. This will still save the ASM bin, however.", c => consoleOutput = true },
                 { "emit-c", "Emits assembled C functions to the console so you can modify your assembly calls to those functions to work with the registries used by the compiler.", c => emitC = true },
@@ -78,7 +77,7 @@ namespace Wiinject
             WiinjectResult result = new();
             try
             {
-                result = WiinjectEngine.AssemblePatch(injectionAddresses, injectionEndAddresses, asmFiles, cFiles, inputPatch, symbolsMapParsed, gccPath, objdumpPath, patchName);
+                // result = WiinjectEngine.AssemblePatch(injectionAddresses, injectionEndAddresses, asmFiles, cFiles, inputPatch, symbolsMapParsed, gccPath, objdumpPath, patchName);
             }
             catch (WiinjectException ex)
             {

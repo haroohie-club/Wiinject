@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Xml;
 
-namespace Wiinject.Lib
+namespace HaroohieClub.Wiinject
 {
     public class Riivolution
     {

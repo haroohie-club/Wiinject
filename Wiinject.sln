@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32319.34
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HaroohieClub.Wiinject", "HaroohieClub.Wiinject\HaroohieClub.Wiinject.csproj", "{21AEB61F-EAF1-46D7-92BE-252EBEA55CB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HaroohieClub.Wiinject.Cli", "HaroohieClub.Wiinject.Cli\HaroohieClub.Wiinject.Cli.csproj", "{21AEB61F-EAF1-46D7-92BE-252EBEA55CB9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HaroohieClub.Wiinject.Tests", "HaroohieClub.Wiinject.Tests\HaroohieClub.Wiinject.Tests.csproj", "{EE147DD2-00BF-4C69-BC6F-F6CC980C09BF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaroohieClub.Wiinject.Lib", "HaroohieClub.Wiinject.Lib\HaroohieClub.Wiinject.Lib.csproj", "{36C6B675-898D-4EE0-84E1-523F7C475D34}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaroohieClub.Wiinject", "HaroohieClub.Wiinject\HaroohieClub.Wiinject.csproj", "{36C6B675-898D-4EE0-84E1-523F7C475D34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

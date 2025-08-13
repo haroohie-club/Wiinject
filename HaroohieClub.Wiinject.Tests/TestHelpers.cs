@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Wiinject.Tests
+namespace HaroohieClub.Wiinject.Tests
 {
     public static class TestHelpers
     {

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 
-namespace Wiinject.Lib
+namespace HaroohieClub.Wiinject
 {
     public static class DolphinSymbolsMap
     {

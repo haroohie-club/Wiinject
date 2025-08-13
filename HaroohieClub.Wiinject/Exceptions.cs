@@ -1,14 +1,14 @@
 ﻿using System;
 
-namespace Wiinject.Lib
+namespace HaroohieClub.Wiinject
 {
     public class WiinjectException : Exception
     {
-        public WiinjectException() : base("Unknown HaroohieClub.Wiinject exception!")
+        public WiinjectException() : base("Unknown HaroohieClub.Wiinject.Cli exception!")
         {
         }
 
-        public WiinjectException(string message) : base($"HaroohieClub.Wiinject exception: {message}")
+        public WiinjectException(string message) : base($"HaroohieClub.Wiinject.Cli exception: {message}")
         {
         }
     }

@@ -4,8 +4,6 @@
     <TargetFramework>net8.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
-
-    <RootNamespace>Wiinject.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HaroohieClub.Wiinject\HaroohieClub.Wiinject.csproj" />
+    <ProjectReference Include="..\HaroohieClub.Wiinject.Cli\HaroohieClub.Wiinject.Cli.csproj" />
   </ItemGroup>
 
   <ItemGroup>
