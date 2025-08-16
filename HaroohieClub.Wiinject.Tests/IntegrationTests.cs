@@ -2,24 +2,24 @@
 using HaroohieClub.Wiinject.Cli;
 using NUnit.Framework;
 
-namespace HaroohieClub.Wiinject.Tests
-{
-    public class IntegrationTests
-    {
-        [Test]
-        public void SuccessfulAsmOnlyTest()
-        {
-            int returnCode = Program.Main(
-            [
-                "-f", "test-cases/good",
-                "-i", "80004000,80014000",
-                "-e", "80004010,80014100",
-                "-o", "out-cases",
-                "-n", "test-patch"
-            ]);
+namespace HaroohieClub.Wiinject.Tests;
 
-            Assert.That((int)Program.WiinjectReturnCode.Ok, Is.EqualTo(returnCode));
-            Assert.That(@"<wiidisc>
+public class IntegrationTests
+{
+    [Test]
+    public void SuccessfulAsmOnlyTest()
+    {
+        int returnCode = Program.Main(
+        [
+            "-f", "test-cases/good",
+            "-i", "80004000,80014000",
+            "-e", "80004010,80014100",
+            "-o", "out-cases",
+            "-n", "test-patch"
+        ]);
+
+        Assert.That((int)Program.WiinjectReturnCode.Ok, Is.EqualTo(returnCode));
+        Assert.That(@"<wiidisc>
   <patch id=""patch1"">
     <memory offset=""0x8006FCA4"" value=""7F86E3787F67DB78"" />
     <memory offset=""0x8006FCB0"" value=""7F28CB78"" />
@@ -38,67 +38,66 @@ namespace HaroohieClub.Wiinject.Tests
   </patch>
 </wiidisc>",
             Is.EqualTo(File.ReadAllText(Path.Combine(".", "out-cases", "Riivolution", "test-patch.xml"))));
-        }
+    }
 
-        [Test]
-        public void AddressCountMismatchTest()
-        {
-            int returnCode = Program.Main(
-            [
-                "-f", "test-cases/good",
-                "-i", "80004000",
-                "-e", "80004010,80014100",
-                "-o", "out-cases",
-                "-n", "test-patch"
-            ]);
+    [Test]
+    public void AddressCountMismatchTest()
+    {
+        int returnCode = Program.Main(
+        [
+            "-f", "test-cases/good",
+            "-i", "80004000",
+            "-e", "80004010,80014100",
+            "-o", "out-cases",
+            "-n", "test-patch"
+        ]);
 
-            Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
-        }
+        Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
+    }
 
-        [Test]
-        public void GccNotFoundTest()
-        {
-            int returnCode = Program.Main(
-            [
-                "-f", "test-cases/gcc_not_found",
-                "-i", "80004000",
-                "-e", "80014000",
-                "-o", "out-cases",
-                "-n", "test-patch",
-                "-d", "devkitpro-not-here",
-            ]);
+    [Test]
+    public void GccNotFoundTest()
+    {
+        int returnCode = Program.Main(
+        [
+            "-f", "test-cases/gcc_not_found",
+            "-i", "80004000",
+            "-e", "80014000",
+            "-o", "out-cases",
+            "-n", "test-patch",
+            "-d", "devkitpro-not-here",
+        ]);
 
-            Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
-        }
+        Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
+    }
 
-        [Test]
-        public void InjectionSitesTooSmallTest()
-        {
-            int returnCode = Program.Main(
-            [
-                "-f", "test-cases/good",
-                "-i", "80004000",
-                "-e", "80004010",
-                "-o", "out-cases",
-                "-n", "test-patch"
-            ]);
+    [Test]
+    public void InjectionSitesTooSmallTest()
+    {
+        int returnCode = Program.Main(
+        [
+            "-f", "test-cases/good",
+            "-i", "80004000",
+            "-e", "80004010",
+            "-o", "out-cases",
+            "-n", "test-patch"
+        ]);
 
-            Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
-        }
+        Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
+    }
 
-        [Test]
-        public void DuplicateVariablesTest()
-        {
-            int returnCode = Program.Main(
-            [
-                "-f", "test-cases/duplicate_variables",
-                "-i", "80004000",
-                "-e", "80014000",
-                "-o", "out-cases",
-                "-n", "test-patch"
-            ]);
+    [Test]
+    public void DuplicateVariablesTest()
+    {
+        int returnCode = Program.Main(
+        [
+            "-f", "test-cases/duplicate_variables",
+            "-i", "80004000",
+            "-e", "80014000",
+            "-o", "out-cases",
+            "-n", "test-patch"
+        ]);
 
-            Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
-        }
+        Assert.That((int)Program.WiinjectReturnCode.Error, Is.EqualTo(returnCode));
     }
 }

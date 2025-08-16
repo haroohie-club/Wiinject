@@ -6,7 +6,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>Wiinject</AssemblyName>
-    <Version>$(WiinjectVersion)$(WiinjectVersion)</Version>
+    <Version>$(WiinjectVersion)</Version>
     <ApplicationIcon>..\.branding\logo\ico\wiinject_blue.ico</ApplicationIcon>
     <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HaroohieClub.Wiinject\HaroohieClub.Wiinject.csproj" />
+    <ProjectReference Include="..\submodules\SymTableHelper\HaroohieClub.NitroPacker.SymTableHelper.csproj" />
   </ItemGroup>
 
 </Project>
