@@ -51,11 +51,11 @@ public static class WiinjectEngine
 
         if (!string.IsNullOrEmpty(inputPatch))
         {
-            result.OutputRiivolution = new(inputPatch, Directory.GetDirectories(sourcePath));
+            result.OutputRiivolution = new(inputPatch, Directory.GetDirectories(sourcePath).Select(Path.GetFileName));
         }
         else
         {
-            result.OutputRiivolution = new(Directory.GetDirectories(sourcePath));
+            result.OutputRiivolution = new(Directory.GetDirectories(sourcePath).Select(Path.GetFileName));
         }
 
         List<InjectionSite> injectionSites = [];
@@ -98,7 +98,7 @@ public static class WiinjectEngine
                     ProcessStartInfo gccInfo = new()
                     {
                         FileName = Path.Combine(devkitPpcPath, "bin", $"powerpc-eabi-gcc{exeExt}"),
-                        ArgumentList = { "-nodefaultlibs", "-c", "-o", $"{tmpPath}.o", $"{tmpPath}.s" },
+                        ArgumentList = { "-nostartfiles", "-nodefaultlibs", "-c", "-o", $"{tmpPath}.o", $"{tmpPath}.s" },
                         CreateNoWindow = true,
                         UseShellExecute = false,
                     };
@@ -130,7 +130,7 @@ public static class WiinjectEngine
                 ProcessStartInfo gccInfo = new()
                 {
                     FileName = Path.Combine(devkitPpcPath, "bin", $"powerpc-eabi-gcc{exeExt}"),
-                    ArgumentList = { "-nodefaultlibs", "-c", "-o", $"{cFilePath}.o", $"{cFilePath}" },
+                    ArgumentList = { "-nostartfiles", "-nodefaultlibs", "-c", "-o", $"{cFilePath}.o", $"{cFilePath}" },
                     CreateNoWindow = true,
                     UseShellExecute = false,
                 };
@@ -269,7 +269,8 @@ public static class WiinjectEngine
                     }
                 }
             }
-            
+
+            string currentPatchName = Path.GetFileName(patchDir);
             foreach (Subroutine subroutine in subroutines)
             {
                 switch (subroutine.ReplacementMode)
@@ -277,19 +278,19 @@ public static class WiinjectEngine
                     case ReplacementMode.Hook:
                         result.OutputRiivolution.AddMemoryPatch(subroutine.Address,
                             [0x48, ..BitConverter.GetBytes(symbolsMap[subroutine.Name] - subroutine.Address + 1).Take(3).Reverse()],
-                            patchDir);
+                            currentPatchName);
                         break;
                     
                     case ReplacementMode.Repl:
                         result.OutputRiivolution.AddMemoryPatch(subroutine.Address,
                                 File.ReadAllBytes(Path.Combine(constructedSourceDir, "build", $"{subroutine.Address:X8}.bin")),
-                                patchDir);
+                                currentPatchName);
                         break;
                     
                     case ReplacementMode.Ref:
                         result.OutputRiivolution.AddMemoryPatch(subroutine.Address, 
                             BitConverter.GetBytes(symbolsMap[subroutine.Name]).Reverse().ToArray(),
-                            patchDir);
+                            currentPatchName);
                         break;
                     
                     default:
@@ -308,10 +309,9 @@ public static class WiinjectEngine
                         continue;
                     }
 
-                    string patchDirName = Path.GetFileName(patchDir);
-                    result.OutputBinaryPatches.Add($"{patchDirName}-{dir}.bin", File.ReadAllBytes(Path.Combine(constructedSourceDir, "build", dir, "newcode.bin")));
-                    result.OutputRiivolution.AddMemoryFilesPatch(loc, $"{patchDirName}-{dir}.bin", patchDir);
-                    loc += (uint)result.OutputBinaryPatches[$"{patchDirName}-{dir}.bin"].Length;
+                    result.OutputBinaryPatches.Add($"{currentPatchName}-{dir}.bin", File.ReadAllBytes(Path.Combine(constructedSourceDir, "build", dir, "newcode.bin")));
+                    result.OutputRiivolution.AddMemoryFilesPatch(loc, Utility.PathCombineAgnostic($"/{patchName}", $"{currentPatchName}-{dir}.bin"), currentPatchName);
+                    loc += (uint)result.OutputBinaryPatches[$"{currentPatchName}-{dir}.bin"].Length;
                 }
             }
         }
@@ -336,7 +336,7 @@ public static class WiinjectEngine
         sb.AppendLine();
         
         sb.AppendLine("rule cc");
-        sb.AppendLine("  command = ${CC} -nodefaultlibs -c -o $out $in");
+        sb.AppendLine("  command = ${CC} -Wall -nostartfiles -nodefaultlibs -c -o $out $in");
         sb.AppendLine();
 
         sb.AppendLine("rule ld");
@@ -394,6 +394,7 @@ public static class WiinjectEngine
     {
         int currentInjectionSite = 0;
         List<string> newDependencies = [];
+        
         foreach (string dir in dirs)
         {
             List<string> objFiles = [];
