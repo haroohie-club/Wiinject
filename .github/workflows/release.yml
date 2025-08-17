@@ -37,18 +37,18 @@ jobs:
         with:
           dotnet-version: '8.0.x'
       - name: Build & Publish Wiinject
-        run: dotnet publish ./Haroohie.Wiinject.Cli/Haroohie.Wiinject.Cli.csproj -c Release -f net8.0 -r ${{ matrix.type.rid }} --self-contained /p:DebugType=None /p:DebugSymbols=false /p:PublishSingleFile=true
+        run: dotnet publish ./HaroohieClub.Wiinject.Cli/HaroohieClub.Wiinject.Cli.csproj -c Release -f net8.0 -r ${{ matrix.type.rid }} --self-contained /p:DebugType=None /p:DebugSymbols=false /p:PublishSingleFile=true
         env:
           WiinjectVersion: ${{ inputs.version }}
       - name: Create zip
         shell: pwsh
         run: |
-          Compress-Archive -Path ./Haroohie.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/publish/ -DestinationPath ./Haroohie.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/Wiinject-${{ inputs.version }}-${{ matrix.type.rid  }}.zip
+          Compress-Archive -Path ./HaroohieClub.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/publish/ -DestinationPath ./HaroohieClub.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/Wiinject-${{ inputs.version }}-${{ matrix.type.rid  }}.zip
       - name: Upload Windows zip
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.type.rid }}
-          path: ./Haroohie.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/Wiinject-${{ inputs.version }}-${{ matrix.type.rid }}.zip
+          path: ./HaroohieClub.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/Wiinject-${{ inputs.version }}-${{ matrix.type.rid }}.zip
           retention-days: 1
   release:
     needs: build
