@@ -44,7 +44,7 @@ jobs:
         shell: pwsh
         run: |
           Compress-Archive -Path ./HaroohieClub.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/publish/ -DestinationPath ./HaroohieClub.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/Wiinject-${{ inputs.version }}-${{ matrix.type.rid  }}.zip
-      - name: Upload Windows zip
+      - name: Upload zip
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.type.rid }}
