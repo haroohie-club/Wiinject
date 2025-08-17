@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
+    <LangVersion>12.0</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Version>$(WiinjectVersion)</Version>
+    <Title>Wiinject</Title>
+    <AssemblyName>HaroohieClub.Wiinject</AssemblyName>
+    <Authors>Jonko</Authors>
+    <Company>Haroohie Translation Club</Company>
+    <Owners>haroohie-club</Owners>
+    <Description>Wiinject is a tool for injecting ASM hacks into Wii games using Riivolution memory patches.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/haroohie-club/Wiinject</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/haroohie-club/Wiinject</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageId>HaroohieClub.Wiinject</PackageId>
+    <PackageTags>wii nintendo ppc powerpc asm patching romhacking hacking</PackageTags>
+    <PackageIcon>wiinject_red.png</PackageIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' != 'net8.0'">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\.branding\logo\png\wiinject_red.png" Pack="true" PackagePath="\" />
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  
+
+</Project>

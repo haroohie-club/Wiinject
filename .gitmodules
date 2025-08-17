@@ -1,0 +1,3 @@
+[submodule "submodules/SymTableHelper"]
+	path = submodules/SymTableHelper
+	url = https://github.com/haroohie-club/NitroPacker.SymTableHelper.git

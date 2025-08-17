@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Wiinject.Tests
-{
-    public static class TestHelpers
-    {
-        public static string ToHexString(this IEnumerable<byte> byteEnumerable)
-        {
-            return string.Join(' ', byteEnumerable.Select(b => $"{b:X2}"));
-        }
+namespace HaroohieClub.Wiinject.Tests;
 
-        public const string TestFunctionCallAsm = @"stwu 1,-24(1)
+public static class TestHelpers
+{
+    public static string ToHexString(this IEnumerable<byte> byteEnumerable)
+    {
+        return string.Join(' ', byteEnumerable.Select(b => $"{b:X2}"));
+    }
+
+    public const string TestFunctionCallAsm = @"stwu 1,-24(1)
 mflr 0
 stw 0,20(1)
 stw 31,16(1)
@@ -24,7 +24,7 @@ lwz 31,-4(11)
 mr 1,11
 blr";
 
-        public const string TestFunctionC = @":
+    public const string TestFunctionC = @":
  18001e0:       94 21 ff e8     stwu    r1,-24(r1)
  18001e4:       93 e1 00 14     stw     r31,20(r1)
  18001e8:       7c 3f 0b 78     mr      r31,r1
@@ -64,7 +64,7 @@ blr";
 
 01800270";
 
-        public const string RecursionTestC = @":
+    public const string RecursionTestC = @":
  18001e0:       94 21 ff e8     stwu    r1,-24(r1)
  18001e4:       7c 08 02 a6     mflr    r0
  18001e8:       90 01 00 1c     stw     r0,28(r1)
@@ -95,7 +95,7 @@ blr";
 
 0180024c";
 
-        public const string ReturnTestC = @":
+    public const string ReturnTestC = @":
  18001e0:       94 21 ff e8     stwu    r1,-24(r1)
  18001e4:       93 e1 00 14     stw     r31,20(r1)
  18001e8:       7c 3f 0b 78     mr      r31,r1
@@ -109,7 +109,7 @@ blr";
 
 01800208";
 
-        public const string CallTestC = @":
+    public const string CallTestC = @":
  1800208:       94 21 ff e8     stwu    r1,-24(r1)
  180020c:       7c 08 02 a6     mflr    r0
  1800210:       90 01 00 1c     stw     r0,28(r1)
@@ -132,5 +132,4 @@ blr";
  1800254:       4e 80 00 20     blr
 
 01800258";
-    }
 }
