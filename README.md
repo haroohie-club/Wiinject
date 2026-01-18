@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src=".branding/logo/png/wiinject_red.png" alt="The Wiinject logo, a red Wii with PowerPC assembly written on the side" style="width: 300px"/>
+  <img src=".branding/logo/png/wiinject_blue.png" alt="The Wiinject logo, a red Wii with PowerPC assembly written on the side" style="width: 300px"/>
   <br/>
   Wiinject
   <br/>
@@ -96,4 +96,4 @@ The `hook`s indicate which instructions to replace with a branch instruction to 
 
 ## Source & Building
 
-Wiinject.sln can be opened in Rider or Visual Studio and built from there. You can also build Wiinject.sln from the command line on any platform that supports .NET 8.0 with `dotnet build` in the root directory. If you're struggling to get Wiinject to run properly after compilation, try explicitly running with the RID of the platform you're building for (e.g. `dotnet build -r osx-arm64 HaroohieClub.Wiinject.Cli/HaroohieClub.Wiinject.Cli.csproj`).
+Wiinject.sln can be opened in Rider or Visual Studio and built from there. You can also build Wiinject.sln from the command line on any platform that supports .NET 10.0 with `dotnet build` in the root directory. If you're struggling to get Wiinject to run properly after compilation, try explicitly running with the RID of the platform you're building for (e.g. `dotnet build -r osx-arm64 HaroohieClub.Wiinject.Cli/HaroohieClub.Wiinject.Cli.csproj`).

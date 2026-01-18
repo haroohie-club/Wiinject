@@ -1,4 +1,4 @@
-﻿int test_function
+﻿int test_function()
 {
 	return 0;
 }

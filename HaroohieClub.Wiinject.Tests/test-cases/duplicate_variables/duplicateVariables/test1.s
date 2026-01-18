@@ -1,2 +1,2 @@
-﻿$duplicateVariable: .word 0
-$nonDuplicateVariable: .skip 16
+﻿duplicateVariable: .word 0
+nonDuplicateVariable: .skip 16
