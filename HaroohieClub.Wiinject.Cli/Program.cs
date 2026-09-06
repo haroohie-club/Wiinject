@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using Mono.Options;
 
 namespace HaroohieClub.Wiinject.Cli;
@@ -19,17 +16,13 @@ public class Program
     public static int Main(string[] args)
     {
         string folder = string.Empty, outputFolder = ".", patchName = "patch", inputPatch = string.Empty, ninjaPath = "/usr/build/ninja", devkitPpcPath = "/opt/devkitpro/devkitPPC", symbolsMap = string.Empty;
-        uint[] injectionAddresses = [], injectionEndAddresses = [];
+        uint arenaLo = 0;
 
         OptionSet options = new()
         {
             { "f|folder=", "The folder where your source files live", f => folder = f },
             { "m|dolphin-map|map|symbols=", "A Dolphin symbols .map file containing any functions you wish to reference", m => symbolsMap = m },
-            { "i|injection-addresses=", "The addresses to inject function code at, comma delimited. The code at these addresses should be safe to overwrite.",
-                i => injectionAddresses = i.Split(',').Select(a => uint.Parse(a, NumberStyles.HexNumber)).ToArray() },
-            { "e|injection-ends=",
-                "The addresses at which the above injection sites end (are no longer safe to overwrite), comma delimited. If the code goes past the last address in this list, an error will be thrown.",
-                e => injectionEndAddresses = e.Split(',').Select(a => uint.Parse(a, NumberStyles.HexNumber)).ToArray() },
+            { "a|arena-lo=", "The arena-lo offset (see documentation for how to determine this)", a => arenaLo = uint.Parse(a, NumberStyles.HexNumber) },
             { "o|output-folder=", "The folder to output the Riivolution patch.xml & assembled ASM bin file(s) to.", o => outputFolder = o },
             { "n|patch-name=", "The name of the patch to output. The patch will be out put to {output_folder}/Riivolution/{patch_name}.xml and the ASM bin(s) will be output to {output_folder}/{patch_name}/patch{i}.bin.",
                 n => patchName = n },
@@ -52,7 +45,7 @@ public class Program
         WiinjectResult result;
         try
         {
-            result = WiinjectEngine.AssemblePatch(injectionAddresses, injectionEndAddresses, folder, symbolsMap, ninjaPath, devkitPpcPath, patchName, inputPatch);
+            result = WiinjectEngine.AssemblePatch(arenaLo, folder, symbolsMap, ninjaPath, devkitPpcPath, patchName, inputPatch);
         }
         catch (WiinjectException ex)
         {
