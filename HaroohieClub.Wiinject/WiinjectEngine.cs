@@ -46,7 +46,7 @@ public static class WiinjectEngine
         {
             throw new ArenaLoMissingException();
         }
-        
+
         if (!string.IsNullOrEmpty(inputPatch))
         {
             result.OutputRiivolution = new(inputPatch, Directory.GetDirectories(sourcePath).Select(Path.GetFileName));
@@ -117,6 +117,7 @@ public static class WiinjectEngine
                     {
                         throw new GccNotFoundException(gccInfo.FileName);
                     }
+
                     for (int i = 0; i < 100 && !File.Exists($"{tmpPath}.o"); i++) ;
                     try
                     {
@@ -126,6 +127,7 @@ public static class WiinjectEngine
                     {
                         throw new ObjcopyNotFoundException(objCopyInfo.FileName);
                     }
+
                     for (int i = 0; i < 100 && !File.Exists($"{tmpPath}.bin"); i++) ;
                     int size = File.ReadAllBytes($"{tmpPath}.bin").Length;
                     File.Delete(tmpPath);
@@ -236,7 +238,7 @@ public static class WiinjectEngine
                             $"Unknown function code encountered for function at 0x{subroutine.Address:X8}!");
                 }
             }
-            
+
             if (mainCode.Length > 0)
             {
                 File.WriteAllText(Path.Combine(asmDir, "main_code.s"), mainCode.ToString());
@@ -347,9 +349,14 @@ public static class WiinjectEngine
             XmlNode patch = patchNodes.Item(i)!;
             if (!patch.HasChildNodes)
                 continue;
-            
+
             result.OutputRiivolution.AddMemoryPatch(0x80000030,
-                [.. BitConverter.GetBytes((uint)(arenaLo + totalSize + 0xC)).Reverse()], patch.Attributes!["id"].Value);
+            [
+                .. BitConverter.GetBytes((uint)(arenaLo + totalSize +
+                                                ((arenaLo + totalSize) % 32 == 0
+                                                    ? 0
+                                                    : 32 - (arenaLo + totalSize) % 32))).Reverse()
+            ], patch.Attributes!["id"].Value);
         }
 
         return result;
