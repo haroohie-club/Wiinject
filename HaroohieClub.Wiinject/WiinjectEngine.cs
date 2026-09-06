@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace HaroohieClub.Wiinject;
 
@@ -45,7 +46,7 @@ public static class WiinjectEngine
         {
             throw new ArenaLoMissingException();
         }
-
+        
         if (!string.IsNullOrEmpty(inputPatch))
         {
             result.OutputRiivolution = new(inputPatch, Directory.GetDirectories(sourcePath).Select(Path.GetFileName));
@@ -57,7 +58,7 @@ public static class WiinjectEngine
 
         List<InjectionSite> injectionSites = [new() { StartAddress = arenaLo, EndAddress = 0x90000000 }];
         int currentInjectionSite = 0;
-        int currentSize = 0;
+        int currentSize = 0, totalSize = 0;
 
         foreach (string patchDir in Directory.GetDirectories(sourcePath))
         {
@@ -335,8 +336,20 @@ public static class WiinjectEngine
                         Utility.PathCombineAgnostic($"/{patchName}", $"{currentPatchName}-{dir}.bin"),
                         currentPatchName);
                     loc += (uint)result.OutputBinaryPatches[$"{currentPatchName}-{dir}.bin"].Length;
+                    totalSize += result.OutputBinaryPatches[$"{currentPatchName}-{dir}.bin"].Length;
                 }
             }
+        }
+
+        XmlNodeList patchNodes = result.OutputRiivolution.PatchXml.GetElementsByTagName("patch");
+        for (int i = 0; i < patchNodes.Count; i++)
+        {
+            XmlNode patch = patchNodes.Item(i)!;
+            if (!patch.HasChildNodes)
+                continue;
+            
+            result.OutputRiivolution.AddMemoryPatch(0x80000030,
+                [.. BitConverter.GetBytes((uint)(arenaLo + totalSize + 0xC)).Reverse()], patch.Attributes!["id"].Value);
         }
 
         return result;
