@@ -18,15 +18,22 @@ Wiinject requires the following to run:
 ### CLI Options
 * `-f|--folder` &ndash; The folder where your source files live.
 * `-m|--dolphin-map|--map|--symbols` &ndash; A Dolphin symbols map for any built-in functions you want to reference by name; if you're using Ghidra, this can be exported directly from there.
-* `-i|--injection-addresses` &ndash; The addresses to inject function code at, comma delimited. The code at these addresses should be safe to overwrite.
-* `-e|--injection-ends` &ndash; The addresses at which the above injection sites end (are no longer safe to overwrite), comma delimited.
-                                If the code is unable to fit in any of these injection sites, an error will be thrown.
+* `-a|--arena-lo` &ndash; The arena-lo value, specific to each game. [See below](#determining-the-arena-lo-value) for how to determine this.
 * `-o|--output-folder` &ndash; The folder to output the Riivolution patch.xml & assembled ASM bin file to.
 * `-n|--patch-name` &ndash; The name of the patch to output. The patch will be output to `{output_folder}/Riivolution/{patch_name}.xml`
                             and the ASM bin will be output to `{output_folder}/{patch_name}/{hack_name}.bin`.
 * `-p|--input-patch` &ndash; The base Riivolution patch that will be modified by Wiinject to contain the memory patches. A blank base template will be created if this is not provided.
 * `-j|--ninja-path` &ndash; The path to the Ninja build executable (e.g. `/usr/bin/ninja`)
 * `d|devkitppc-path=` &dash; The path to a devkitPPC installation (e.g. `C:\devkitPro\devkitPPC` or `/opt/devkitpro/devkitPPC`)
+
+### Determining the Arena-Lo Value
+The **arena-lo value** is the lower bound for heap allocation -- i.e., the end of the executable code section for the ROM. By patching this value teo be higher, we can add extra space for inserting extra code.
+
+To determine this value, run the game in Dolphin with the log viewer present and OSREPORT_HLE logs enabled. Shortly after the game starts up, you should see a line that looks something like:
+```
+Core/HLE/HLE_OS.cpp:95 N[OSREPORT_HLE]: 800c6afc->800c6ae8| MEM1 Arena : 0x802c83c0 - 0x817789c0
+```
+The first value after `MEM1 Arena` (in this case, `0x802c83c0`) is your arena-lo that you'll need to provide to Wiinject.
 
 ### Structuring Your Source Code and Preparing Your Initial Patch
 

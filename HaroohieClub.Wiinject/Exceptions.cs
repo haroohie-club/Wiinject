@@ -32,30 +32,22 @@ public class GccNotFoundException(string gccPath) : WiinjectException($"GCC exec
 }
 
 /// <summary>
-/// An exception thrown when devkitPPC's objdump is not found
+/// An exception thrown when devkitPPC's objcopy is not found
 /// </summary>
-/// <param name="objdumpPath">The path that the program attempted to find objdump at</param>
-public class ObjdumpNotFoundException(string objdumpPath) : WiinjectException($"Objdump executable not found on path ({objdumpPath})!")
+/// <param name="objcopyPath">The path that the program attempted to find objcopy at</param>
+public class ObjcopyNotFoundException(string objcopyPath) : WiinjectException($"Objcopy executable not found on path ({objcopyPath})!")
 {
 }
 
 /// <summary>
 /// An exception thrown when the number of injection and end addresses do not match
 /// </summary>
-public class AddressCountMismatchException : WiinjectException
+public class ArenaLoMissingException : WiinjectException
 {
     /// <summary>
     /// Generic constructor for AddressCountMismatchException
     /// </summary>
-    public AddressCountMismatchException() : base("You must provide the same number of injection addresses and end addresses!")
+    public ArenaLoMissingException() : base("You must provide the arena lo address!")
     {
     }
-}
-
-/// <summary>
-/// An exception thrown when the provided injection sites are not big enough to contain the code provided
-/// </summary>
-/// <param name="message"></param>
-public class InjectionSitesTooSmallException(string message) : WiinjectException(message)
-{
 }

@@ -2,7 +2,7 @@
 <Project>
 
     <PropertyGroup Condition="'$(WiinjectVersion)' == ''">
-        <WiinjectVersion>2.0.0</WiinjectVersion>
+        <WiinjectVersion>3.0.0</WiinjectVersion>
     </PropertyGroup>
 
 </Project>
