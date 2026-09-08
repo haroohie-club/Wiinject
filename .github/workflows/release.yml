@@ -11,6 +11,11 @@ on:
         description: Release notes
         required: true
         type: string
+      skip_nuget:
+        description: 'Skip NuGet Publish'
+        required: true
+        default: false
+        type: 'boolean'
 
 permissions:
   contents: write
@@ -35,21 +40,39 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4.1.0
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
       - name: Build & Publish Wiinject
-        run: dotnet publish ./HaroohieClub.Wiinject.Cli/HaroohieClub.Wiinject.Cli.csproj -c Release -f net8.0 -r ${{ matrix.type.rid }} --self-contained /p:DebugType=None /p:DebugSymbols=false /p:PublishSingleFile=true
+        run: dotnet publish ./HaroohieClub.Wiinject.Cli/HaroohieClub.Wiinject.Cli.csproj -c Release -f net10.0 -r ${{ matrix.type.rid }} --self-contained /p:DebugType=None /p:DebugSymbols=false /p:PublishSingleFile=true
         env:
           WiinjectVersion: ${{ inputs.version }}
       - name: Create zip
         shell: pwsh
         run: |
-          Compress-Archive -Path ./HaroohieClub.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/publish/ -DestinationPath ./HaroohieClub.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/Wiinject-${{ inputs.version }}-${{ matrix.type.rid  }}.zip
+          Compress-Archive -Path ./HaroohieClub.Wiinject.Cli/bin/Release/net10.0/${{ matrix.type.rid }}/publish/ -DestinationPath ./HaroohieClub.Wiinject.Cli/bin/Release/net10.0/${{ matrix.type.rid }}/Wiinject-${{ inputs.version }}-${{ matrix.type.rid  }}.zip
       - name: Upload zip
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.type.rid }}
-          path: ./HaroohieClub.Wiinject.Cli/bin/Release/net8.0/${{ matrix.type.rid }}/Wiinject-${{ inputs.version }}-${{ matrix.type.rid }}.zip
+          path: ./HaroohieClub.Wiinject.Cli/bin/Release/net10.0/${{ matrix.type.rid }}/Wiinject-${{ inputs.version }}-${{ matrix.type.rid }}.zip
           retention-days: 1
+  
+  publish-package:
+    name: 'Publish NuGet Package'
+    if: ${{ !inputs.skip_nuget }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          submodules: true
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.0.0
+        with:
+          dotnet-version: '10.0.x'
+      - run: |
+          dotnet pack HaroohieClub.Wiinject/HaroohieClub.Wiinject.csproj
+          dotnet nuget push -s nuget.org -k ${{ secrets.API_NUGET_KEY }} HaroohieClub.Wiinject/bin/Release/HaroohieClub.Wiinject.${{ inputs.version }}.nupkg
+  
   release:
     needs: build
     runs-on: ubuntu-latest
