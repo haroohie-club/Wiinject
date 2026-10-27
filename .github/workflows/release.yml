@@ -73,6 +73,8 @@ jobs:
       - name: Build Wiinject package
         run: |
           dotnet pack HaroohieClub.Wiinject/HaroohieClub.Wiinject.csproj
+        env:
+          WiinjectVersion: ${{ inputs.version }}
 
       - name: NuGet login (OIDC → temp API key)
         uses: NuGet/login@v1
