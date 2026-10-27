@@ -12,7 +12,7 @@ internal static class DolphinSymbolsMap
             
         foreach (string line in lines)
         {
-            string[] components = line.Split(' ');
+            string[] components = line.Trim().Split(' ');
             if (components.Length < 6)
             {
                 continue;
